@@ -40,6 +40,8 @@ const OrgsPage           = lazy(() => import('@/views/admin/OrgsPage'));
 const DisputesPage       = lazy(() => import('@/views/admin/DisputesPage'));
 const AuditLogPage       = lazy(() => import('@/views/admin/AuditLogPage'));
 
+const AccountPage        = lazy(() => import('@/views/user/AccountPage'));
+
 const ROLE_HOME_MAP: Record<UserRole, string> = {
   generator: '/generator',
   driver: '/driver',
@@ -79,6 +81,7 @@ function DocumentTitleManager() {
     else if (path === '/admin/orgs') pageTitle = 'Registered Organisations Ledger';
     else if (path === '/admin/disputes') pageTitle = 'Disputes & Arbitration Ledger';
     else if (path === '/admin/audit-log') pageTitle = 'Immutable Audit Trail';
+    else if (path === '/account') pageTitle = 'Account Management';
 
     document.title = `${pageTitle} | CarboTrace`;
   }, [location.pathname]);
@@ -188,6 +191,9 @@ export default function App() {
             <Route path="/admin/orgs"         element={<ProtectedRoute allowedRoles={['admin']}><OrgsPage /></ProtectedRoute>} />
             <Route path="/admin/disputes"     element={<ProtectedRoute allowedRoles={['admin']}><DisputesPage /></ProtectedRoute>} />
             <Route path="/admin/audit-log"    element={<ProtectedRoute allowedRoles={['admin']}><AuditLogPage /></ProtectedRoute>} />
+
+            {/* Account — accessible by every authenticated role */}
+            <Route path="/account" element={<AccountPage />} />
           </Route>
 
           {/* Catch-all */}

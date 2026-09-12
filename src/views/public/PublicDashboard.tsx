@@ -1,21 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Leaf, TrendingUp, Award, Building2, Calculator,
+  Leaf, TrendingUp, Award, Building2,
   ChevronRight, Recycle, ShieldCheck, ArrowUpRight,
   Package, Truck, Settings, ShoppingCart, AlertTriangle,
-  Globe2, BarChart3, ChevronDown, Sun, Moon, IndianRupee,
-  MapPin, Camera, Scale, Bell, Info,
+  Globe2, BarChart3, ChevronDown,
+  MapPin, Camera, Scale, Bell,
 } from 'lucide-react';
-import { mockLeaderboard } from '@/lib/mock-data';
 import {
-  formatWeight, formatCO2e, estimateCO2e, co2eComparisons, WASTE_TYPE_LABELS,
-} from '@/lib/utils';
-import {
-  INDIA_STATS, PLAYBOOK, FRICTION, REVENUE_LINES, GENERATOR_RATE_INR_PER_TONNE,
+  INDIA_STATS, PLAYBOOK, FRICTION, REVENUE_LINES,
 } from '@/lib/public-constants';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useTheme } from '@/components/theme-provider';
 
 // ─── Animated counter ──────────────────────────────────────────────────────────
 function AnimatedNumber({
@@ -73,17 +68,6 @@ function Sparkline({
   );
 }
 
-// ─── Mini bar chart ────────────────────────────────────────────────────────────
-function MiniBar({ value, max, color = 'var(--accent)', width = 80 }: {
-  value: number; max: number; color?: string; width?: number;
-}) {
-  const pct = Math.min(value / max, 1);
-  return (
-    <div style={{ width, height: 4, background: 'var(--border-md)', borderRadius: 2, overflow: 'hidden' }}>
-      <div style={{ width: `${pct * 100}%`, height: '100%', background: color, borderRadius: 2, transition: 'width 1s ease' }} />
-    </div>
-  );
-}
 
 // ─── Corner-tick card wrapper ──────────────────────────────────────────────────
 function ConsoleCard({
@@ -215,15 +199,6 @@ function FrictionCard({ item, idx }: { item: typeof FRICTION[number]; idx: numbe
 
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function PublicDashboard() {
-  const [wasteType, setWasteType] = useState('food_wet');
-  const [weightKg, setWeightKg] = useState(100);
-  const co2e = estimateCO2e(wasteType, weightKg);
-  const comparisons = co2eComparisons(co2e);
-  const estimatedPayoutINR = Math.round((weightKg / 1000) * GENERATOR_RATE_INR_PER_TONNE);
-
-  // leaderboard max for bar scaling
-  const maxCo2e = Math.max(...mockLeaderboard.map(e => e.co2e_kg));
-
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)', fontFamily: 'var(--font-sans)' }}>
 
@@ -259,11 +234,6 @@ export default function PublicDashboard() {
           <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--fg)', letterSpacing: '-0.02em' }}>
             Carbo<span style={{ color: 'var(--accent)' }}>Trace</span>
           </span>
-          <span style={{
-            fontSize: '9px', fontFamily: 'var(--font-mono)', padding: '1px 5px',
-            borderRadius: '4px', background: 'var(--surface-2)',
-            border: '1px solid var(--border-md)', color: 'var(--fg-subtle)',
-          }}>MRV v2.4</span>
         </Link>
 
         <Link to="/impact" className="btn btn-ghost btn-sm" id="nav-impact-btn" style={{ color: 'var(--accent)', gap: '0.35rem', flexShrink: 0 }}>
@@ -385,135 +355,11 @@ export default function PublicDashboard() {
         </div>
       </section>
 
-      {/* ══ LEADERBOARD ══════════════════════════════════════════════════════════ */}
-      <section style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.25rem' }}>
-          <Award size={16} color="var(--amber)" />
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--fg)' }}>Organisation Impact Leaderboard</h2>
-          <MicroLabel color="var(--fg-subtle)" >SORTED BY CO₂e AVOIDED</MicroLabel>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-          {mockLeaderboard.map((entry, i) => (
-            <ConsoleCard
-              key={entry.org.id}
-              style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.875rem 1.125rem' }}
-              className="card-hover"
-            >
-              {/* Rank badge */}
-              <div style={{
-                width: 34, height: 34, borderRadius: '8px', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 800, fontSize: '0.88rem', fontFamily: 'var(--font-mono)',
-                background: i === 0 ? 'linear-gradient(135deg,#FDE047,#F99C00)'
-                  : i === 1 ? 'linear-gradient(135deg,#E2E8F0,#94A3B8)'
-                    : 'linear-gradient(135deg,#FDBA74,#EA580C)',
-                color: '#0B0D10',
-              }}>
-                {entry.rank}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--fg)' }}>{entry.org.name}</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--fg-subtle)' }}>{entry.org.city} · {entry.org.type.replace('_', ' ')}</div>
-                {/* Mini bar */}
-                <div style={{ marginTop: '0.3rem' }}>
-                  <MiniBar value={entry.co2e_kg} max={maxCo2e} color="var(--accent)" width={120} />
-                </div>
-              </div>
-              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <div className="mono-num" style={{ fontWeight: 700, color: 'var(--accent)', fontSize: '0.9rem' }}>{formatCO2e(entry.co2e_kg)}</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--fg-subtle)' }}>{formatWeight(entry.waste_kg)} diverted</div>
-              </div>
-              <div className="badge badge-green" style={{ flexShrink: 0 }}>{entry.credits} cr</div>
-            </ConsoleCard>
-          ))}
-        </div>
-      </section>
 
-      {/* ══ ESTIMATOR (CO₂e + ₹ payout) ═════════════════════════════════════════ */}
-      <section style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
-        <div className="glass-accent" style={{ borderRadius: '1.125rem', padding: '2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.5rem' }}>
-            <Calculator size={18} color="var(--accent)" />
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--fg)' }}>Carbon Footprint &amp; Yield Estimator</h2>
-            <MicroLabel color="var(--fg-subtle)">IPCC 2019 · EPA WARM</MicroLabel>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem', alignItems: 'start' }}>
-            {/* Controls */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
-              <div className="form-group">
-                <label className="form-label">Waste Feedstock Classification</label>
-                <select className="input-base" value={wasteType} onChange={e => setWasteType(e.target.value)} id="calc-waste-type">
-                  {Object.entries(WASTE_TYPE_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>{String(v)}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">
-                  Mass Input: <span className="mono-num" style={{ color: 'var(--accent)' }}>{weightKg.toLocaleString()} kg</span>
-                </label>
-                <input
-                  type="range" min={10} max={5000} step={10} value={weightKg}
-                  onChange={e => setWeightKg(Number(e.target.value))}
-                  id="calc-weight-slider"
-                  aria-label="Waste weight in kilograms"
-                  style={{ width: '100%', accentColor: 'var(--accent)' }}
-                />
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)' }}>
-                  <span>10 kg</span><span>5,000 kg</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Outputs */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-              {/* CO₂e */}
-              <div style={{ textAlign: 'center' }}>
-                <MicroLabel color="var(--fg-subtle)">ESTIMATED NET CO₂e AVOIDED</MicroLabel>
-                <div className="text-gradient mono-num" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{formatCO2e(co2e)}</div>
-              </div>
-
-              {/* ₹ Payout — the adoption incentive */}
-              <div style={{
-                background: 'var(--accent-dim)',
-                border: '1px solid rgba(143,240,117,0.3)',
-                borderRadius: '10px', padding: '0.875rem 1.125rem',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <IndianRupee size={13} color="var(--accent)" />
-                    <MicroLabel color="var(--accent)">ESTIMATED PAYOUT TO YOU</MicroLabel>
-                  </div>
-                  <div title="Derived from deck's ₹26,500/100t gross. Generator share ≈ 40% → ~₹100/t. Labelled as estimate." style={{ cursor: 'help' }}>
-                    <Info size={12} color="var(--fg-subtle)" />
-                  </div>
-                </div>
-                <div className="mono-num" style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--accent)', lineHeight: 1 }}>
-                  ₹{estimatedPayoutINR.toLocaleString('en-IN')}
-                </div>
-                <div className="micro-label" style={{ color: 'var(--fg-subtle)', fontSize: '9px', marginTop: '0.3rem' }}>
-                  Estimated · ~₹265/t gross → generator share ≈ 40% → ₹100/t
-                </div>
-              </div>
-
-              {/* Comparison tiles */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                {comparisons.map(c => (
-                  <div key={c.label} style={{ background: 'var(--surface-2)', borderRadius: '8px', padding: '0.625rem', textAlign: 'center', border: '1px solid var(--border)' }}>
-                    <div className="mono-num" style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent)' }}>{c.value.toLocaleString('en-IN')}</div>
-                    <div style={{ fontSize: '0.68rem', color: 'var(--fg-subtle)', marginTop: '0.15rem' }}>{c.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ══ HOW THE CHAIN WORKS ══════════════════════════════════════════════════ */}
       <section style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <MicroLabel color="var(--fg-subtle)">6-STEP W2C VALUE CHAIN · END-TO-END MRV</MicroLabel>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--fg)', margin: '0.375rem 0 0' }}>How the Waste-to-Carbon Chain Works</h2>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.875rem' }}>
@@ -692,7 +538,7 @@ export default function PublicDashboard() {
             <a href="https://github.com/Jasdeep-Kashyap" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>GitHub ↗</a>
           </p>
           <p style={{ fontSize: '0.7rem', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', margin: 0 }}>
-            MRV Protocol v2.4 · ISO 14064 · Waste-to-Carbon Value Chain Tracker · HACKOUT '26
+            ISO 14064 · Waste-to-Carbon Value Chain Tracker · HACKOUT '26
           </p>
         </div>
       </footer>

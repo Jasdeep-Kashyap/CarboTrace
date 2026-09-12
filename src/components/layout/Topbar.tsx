@@ -85,11 +85,16 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         </span>
       </Link>
 
-      {/* Sync pill */}
-      <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-2)] border border-[var(--border-md)] text-[11px] font-mono">
-        <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse shadow-[0_0_8px_var(--accent)]" />
-        <span className="text-[var(--fg-muted)]">LEDGER SYNCED</span>
-      </div>
+      {/* Sync pill / Supabase DB status button */}
+      <button
+        type="button"
+        onClick={() => setDbModalOpen(true)}
+        className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border-md)] text-[11px] font-mono cursor-pointer transition-colors"
+        title="View Supabase Live Status & Mock Data Seeding"
+      >
+        <span className={`w-2 h-2 rounded-full ${isSupabaseConfigured ? 'bg-[var(--accent)] shadow-[0_0_8px_var(--accent)]' : 'bg-[var(--amber)] shadow-[0_0_8px_var(--amber)]'} animate-pulse`} />
+        <span className="text-[var(--fg-muted)]">{isSupabaseConfigured ? 'SUPABASE LIVE' : 'DEMO MODE'}</span>
+      </button>
 
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginLeft: 'auto' }}>
@@ -194,17 +199,22 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           }} />
         </button>
 
-        {/* Avatar */}
-        <div style={{
-          width: 34, height: 34, borderRadius: '10px',
-          background: 'var(--accent-dim)',
-          border: '1px solid rgba(143, 240, 117, 0.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent)', cursor: 'pointer',
-          flexShrink: 0, fontFamily: 'var(--font-mono)',
-        }}>
+        {/* Avatar → Account page */}
+        <Link
+          to="/account"
+          title="My Account"
+          style={{
+            width: 34, height: 34, borderRadius: '10px',
+            background: 'var(--accent-dim)',
+            border: '1px solid rgba(143, 240, 117, 0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent)',
+            flexShrink: 0, fontFamily: 'var(--font-mono)',
+            textDecoration: 'none', transition: 'opacity 0.2s',
+          }}
+        >
           {profile?.full_name?.charAt(0) ?? 'U'}
-        </div>
+        </Link>
       </div>
 
       {/* Supabase Connection Details Modal */}
@@ -259,24 +269,29 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
             <div style={{ marginBottom: '1.25rem' }}>
               <div style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', marginBottom: '0.35rem' }}>
-                To Connect Your Live Supabase Project:
+                To Seed Demo Mock Data to Supabase:
               </div>
               <ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.82rem', color: 'var(--fg-muted)', lineHeight: 1.6 }}>
                 <li>
-                  Open your <code style={{ color: 'var(--accent)' }}>.env</code> file in the project root.
+                  Open your <strong>Supabase Dashboard → SQL Editor</strong>.
                 </li>
                 <li>
-                  Provide your Supabase URL and Anon Key:
-                  <pre style={{ background: 'var(--surface-2)', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '10px', color: 'var(--cyan)', margin: '4px 0' }}>
-                    VITE_SUPABASE_URL=https://xyz.supabase.co
-                    VITE_SUPABASE_ANON_KEY=eyJh...
-                  </pre>
-                </li>
-                <li>
-                  Run the SQL migration script located at:
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--accent)', marginTop: '2px' }}>
+                  Execute the schema migration:
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', marginTop: '2px' }}>
                     supabase/migrations/20260912_initial_schema.sql
                   </div>
+                </li>
+                <li>
+                  Execute the demonstration seed dataset:
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent)', marginTop: '2px' }}>
+                    supabase/migrations/20260912_seed_demo_data.sql
+                  </div>
+                </li>
+                <li>
+                  Or run the CLI seed command:
+                  <pre style={{ background: 'var(--surface-2)', padding: '0.4rem 0.6rem', borderRadius: '6px', fontSize: '11px', color: 'var(--cyan)', margin: '4px 0' }}>
+                    npm run seed
+                  </pre>
                 </li>
               </ol>
             </div>

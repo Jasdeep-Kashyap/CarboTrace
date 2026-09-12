@@ -2,7 +2,7 @@ import { NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Truck, Recycle, ShieldCheck, ShoppingCart,
   Settings, LogOut, Leaf, Package, MapPin, ClipboardList, X,
-  Building2, AlertTriangle, FileText
+  Building2, AlertTriangle, FileText, UserCircle2
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { ROLE_LABELS } from '@/lib/utils';
@@ -12,40 +12,40 @@ interface NavItem { label: string; href: string; icon: React.ReactNode; }
 
 const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   generator: [
-    { label: 'Dashboard',    href: '/generator',     icon: <LayoutDashboard size={16} /> },
-    { label: 'New Pickup',   href: '/generator/new', icon: <Package size={16} /> },
+    { label: 'Dashboard', href: '/generator', icon: <LayoutDashboard size={16} /> },
+    { label: 'New Pickup', href: '/generator/new', icon: <Package size={16} /> },
   ],
   driver: [
-    { label: 'Dashboard',   href: '/driver',          icon: <LayoutDashboard size={16} /> },
+    { label: 'Dashboard', href: '/driver', icon: <LayoutDashboard size={16} /> },
     { label: 'Active Route', href: '/driver/route/route-1', icon: <MapPin size={16} /> },
   ],
   recycler: [
-    { label: 'Dashboard',   href: '/recycler',            icon: <LayoutDashboard size={16} /> },
-    { label: 'Batches',     href: '/recycler/batch/batch-1', icon: <Recycle size={16} /> },
+    { label: 'Dashboard', href: '/recycler', icon: <LayoutDashboard size={16} /> },
+    { label: 'Batches', href: '/recycler/batch/batch-1', icon: <Recycle size={16} /> },
   ],
   checker: [
-    { label: 'Dashboard',   href: '/checker',          icon: <LayoutDashboard size={16} /> },
-    { label: 'Audit Queue', href: '/checker/queue',    icon: <ClipboardList size={16} /> },
+    { label: 'Dashboard', href: '/checker', icon: <LayoutDashboard size={16} /> },
+    { label: 'Audit Queue', href: '/checker/queue', icon: <ClipboardList size={16} /> },
   ],
   buyer: [
-    { label: 'Marketplace', href: '/marketplace',     icon: <ShoppingCart size={16} /> },
-    { label: 'My Credits',  href: '/buyer',           icon: <Leaf size={16} /> },
+    { label: 'Marketplace', href: '/marketplace', icon: <ShoppingCart size={16} /> },
+    { label: 'My Credits', href: '/buyer', icon: <Leaf size={16} /> },
   ],
   admin: [
-    { label: 'Dashboard',   href: '/admin',           icon: <LayoutDashboard size={16} /> },
-    { label: 'Orgs',        href: '/admin/orgs',      icon: <Settings size={16} /> },
-    { label: 'Disputes',    href: '/admin/disputes',  icon: <ShieldCheck size={16} /> },
-    { label: 'Marketplace', href: '/marketplace',     icon: <ShoppingCart size={16} /> },
+    { label: 'Dashboard', href: '/admin', icon: <LayoutDashboard size={16} /> },
+    { label: 'Orgs', href: '/admin/orgs', icon: <Settings size={16} /> },
+    { label: 'Disputes', href: '/admin/disputes', icon: <ShieldCheck size={16} /> },
+    { label: 'Marketplace', href: '/marketplace', icon: <ShoppingCart size={16} /> },
   ],
 };
 
 const ROLE_ICON: Record<UserRole, React.ReactNode> = {
-  generator: <Package  size={14} />,
-  driver:    <Truck    size={14} />,
-  recycler:  <Recycle  size={14} />,
-  checker:   <ShieldCheck size={14} />,
-  buyer:     <ShoppingCart size={14} />,
-  admin:     <Settings size={14} />,
+  generator: <Package size={14} />,
+  driver: <Truck size={14} />,
+  recycler: <Recycle size={14} />,
+  checker: <ShieldCheck size={14} />,
+  buyer: <ShoppingCart size={14} />,
+  admin: <Settings size={14} />,
 };
 
 interface SidebarProps { isOpen: boolean; onClose: () => void; }
@@ -80,11 +80,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--fg)', letterSpacing: '-0.02em', fontFamily: 'var(--font-sans)' }}>
                 Carbo<span style={{ color: 'var(--accent)' }}>Trace</span>
               </span>
-              <span style={{
-                fontSize: '9px', fontFamily: 'var(--font-mono)', padding: '1px 5px',
-                borderRadius: '4px', background: 'var(--surface-2)',
-                border: '1px solid var(--border)', color: 'var(--fg-muted)'
-              }}>MRV v2.4</span>
             </div>
             <p style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--fg-subtle)', letterSpacing: '0.06em', margin: 0 }}>
               WASTE-TO-CARBON
@@ -171,8 +166,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </NavLink>
       </nav>
 
-      {/* Logout */}
-      <div style={{ padding: '1rem', borderTop: '1px solid var(--border)' }}>
+      {/* Account + Logout */}
+      <div style={{ padding: '1rem', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+        <NavLink to="/account" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose} title="Manage your account">
+          <UserCircle2 size={16} /> My Account
+        </NavLink>
         <button className="nav-link" onClick={handleLogout} style={{ color: 'var(--red)', width: '100%' }}>
           <LogOut size={16} /> Sign Out
         </button>

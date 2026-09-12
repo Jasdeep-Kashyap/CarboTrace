@@ -323,18 +323,6 @@ export default function RegisterPage() {
               <span style={{ fontWeight: 800, fontSize: '1.35rem', color: 'var(--fg)', letterSpacing: '-0.02em' }}>
                 Carbo<span style={{ color: 'var(--accent)' }}>Trace</span>
               </span>
-              <span style={{
-                fontSize: '9px',
-                fontFamily: 'var(--font-mono)',
-                padding: '2px 6px',
-                borderRadius: '4px',
-                background: 'var(--surface-2)',
-                border: '1px solid var(--border)',
-                color: 'var(--fg-muted)',
-                letterSpacing: '0.04em',
-              }}>
-                MRV v2.4 PROTOCOL
-              </span>
             </div>
             <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--fg-muted)', letterSpacing: '0.02em' }}>
               High-Assurance Waste-to-Carbon Registration

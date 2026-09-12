@@ -60,11 +60,6 @@ export default function LoginPage() {
                 <span style={{ fontWeight: 700, fontSize: '1.2rem', color: 'var(--fg)', letterSpacing: '-0.02em' }}>
                   Carbo<span style={{ color: 'var(--accent)' }}>Trace</span>
                 </span>
-                <span style={{
-                  fontSize: '9px', fontFamily: 'var(--font-mono)', padding: '1px 5px',
-                  borderRadius: '4px', background: 'var(--surface-2)',
-                  border: '1px solid var(--border)', color: 'var(--fg-muted)'
-                }}>MRV v2.4</span>
               </div>
               <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--fg-subtle)', letterSpacing: '0.05em' }}>
                 WASTE-TO-CARBON PLATFORM
