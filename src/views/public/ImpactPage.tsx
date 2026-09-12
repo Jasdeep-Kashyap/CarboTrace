@@ -1,3 +1,4 @@
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -71,27 +72,27 @@ export default function ImpactPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0B0D10', color: '#E2E8F0', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)', fontFamily: 'var(--font-sans)' }}>
 
       {/* ── Top Navigation Bar ── */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 40,
-        background: 'rgba(11, 13, 16, 0.92)', backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        background: 'var(--nav-bg)', backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid var(--border)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 2rem', height: 64, gap: '1rem',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <Link
             to="/"
-            className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-xs font-mono"
+            className="flex items-center gap-2 text-[var(--fg-muted)] hover:text-[var(--fg)] transition-colors text-xs font-mono"
             id="impact-back-home-btn"
           >
             <ArrowLeft size={16} />
             <span className="hidden sm:inline">Back to Dashboard</span>
           </Link>
 
-          <div style={{ height: 18, width: 1, background: 'rgba(255,255,255,0.1)' }} />
+          <div style={{ height: 18, width: 1, background: 'var(--border)' }} />
 
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
             <div style={{
@@ -102,26 +103,23 @@ export default function ImpactPage() {
             }}>
               <Leaf size={16} color="#8FF075" />
             </div>
-            <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#FFFFFF', letterSpacing: '-0.02em' }}>
-              Carbo<span style={{ color: '#8FF075' }}>Trace</span>
+            <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--fg)', letterSpacing: '-0.02em' }}>
+              Carbo<span style={{ color: 'var(--accent)' }}>Trace</span>
             </span>
             <span style={{
               fontSize: '9px', fontFamily: 'var(--font-mono)', padding: '1px 5px',
-              borderRadius: '4px', background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)'
+              borderRadius: '4px', background: 'var(--surface-2)',
+              border: '1px solid var(--border)', color: 'var(--fg-muted)'
             }}>VILLAGE PILOT</span>
           </Link>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#12151A] border border-white/8 text-[11px] font-mono">
-            <span className="w-2 h-2 rounded-full bg-[#8FF075] animate-pulse shadow-[0_0_8px_#8FF075]" />
-            <span className="text-[#8FF075] font-semibold">SUPABASE LIVE</span>
-          </div>
+          <ThemeToggle />
 
           <button
             onClick={() => window.print()}
-            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#12151A] hover:bg-[#161A20] border border-white/10 text-xs text-white/80 transition-colors"
+            className="btn-ghost btn-sm hidden md:flex" style={{ gap: "0.5rem" }}
             title="Print or Export Impact Dossier"
           >
             <Printer size={14} />
@@ -130,7 +128,7 @@ export default function ImpactPage() {
 
           <button
             onClick={handleCopyShare}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#12151A] hover:bg-[#161A20] border border-white/10 text-xs text-white/80 transition-colors"
+            className="btn-ghost btn-sm flex" style={{ gap: "0.35rem" }}
           >
             <Share2 size={14} />
             <span>{copiedLink ? 'Link Copied!' : 'Share'}</span>
@@ -146,7 +144,7 @@ export default function ImpactPage() {
       <header style={{
         padding: '3.5rem 2rem 2.5rem', textAlign: 'center',
         position: 'relative', overflow: 'hidden',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
+        borderBottom: '1px solid var(--border)'
       }}>
         <div style={{ position: 'absolute', top: '-20%', left: '20%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(143, 240, 117, 0.12) 0%, transparent 60%)', filter: 'blur(90px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', top: '10%', right: '15%', width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0, 210, 239, 0.10) 0%, transparent 60%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
@@ -163,10 +161,10 @@ export default function ImpactPage() {
           }}>
             <AlertCircle size={20} color="#F99C00" style={{ flexShrink: 0, marginTop: '2px' }} />
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#F99C00', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--amber)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 DEMO / SIMULATION NOTICE: ILLUSTRATIVE MOCK NUMBERS
               </div>
-              <div style={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.8)', lineHeight: 1.5, marginTop: '2px' }}>
+              <div style={{ fontSize: '0.82rem', color: 'var(--fg)', lineHeight: 1.5, marginTop: '2px' }}>
                 The metrics displayed on this page are <strong>mock illustrative numbers</strong> calibrated for a small rural village pilot model (~142 farming households and dairy co-op). <strong>They are not actual field measurements</strong>. The underlying carbon calculation formulas and citations (IPCC 2019 Refinement, US EPA WARM v16, ISO 14064-2, and CPCB) are authentic scientific standards.
               </div>
             </div>
@@ -176,7 +174,7 @@ export default function ImpactPage() {
             display: 'inline-flex', alignItems: 'center', gap: '0.625rem',
             padding: '0.35rem 1rem', borderRadius: '999px',
             background: 'rgba(143, 240, 117, 0.08)', border: '1px solid rgba(143, 240, 117, 0.25)',
-            color: '#8FF075', fontSize: '11px', fontFamily: 'var(--font-mono)',
+            color: 'var(--accent)', fontSize: '11px', fontFamily: 'var(--font-mono)',
             marginBottom: '1.25rem',
           }}>
             <ShieldCheck size={14} />
@@ -185,17 +183,17 @@ export default function ImpactPage() {
 
           <h1 style={{ fontSize: 'clamp(2rem, 4.5vw, 3.25rem)', fontWeight: 800, lineHeight: 1.15, marginBottom: '1.25rem', letterSpacing: '-0.03em' }}>
             <span className="text-gradient">Village-Scale Ecological & Community Impact</span><br />
-            <span style={{ color: '#FFFFFF' }}>Simulated with Verified Empirical Methodologies</span>
+            <span style={{ color: 'var(--fg)' }}>Simulated with Verified Empirical Methodologies</span>
           </h1>
 
-          <p style={{ fontSize: '1.02rem', color: 'rgba(255, 255, 255, 0.65)', lineHeight: 1.7, maxWidth: 680, margin: '0 auto 2rem' }}>
+          <p style={{ fontSize: '1.02rem', color: 'var(--fg-muted)', lineHeight: 1.7, maxWidth: 680, margin: '0 auto 2rem' }}>
             Simulating how a rural village cluster converts crop stubble, kitchen scraps, and cow dung into biochar soil sinks and clean biogas. Every metric formula is rooted in standardized models: <strong>IPCC 2019 Vol 5</strong>, <strong>US EPA WARM v16</strong>, <strong>ISO 14064-2</strong>, and <strong>CPCB 2024</strong>.
           </p>
 
           {/* Timeframe Scope Switcher */}
           <div style={{
             display: 'inline-flex', alignItems: 'center', padding: '0.25rem',
-            background: '#12151A', border: '1px solid rgba(255, 255, 255, 0.12)',
+            background: 'var(--surface-1)', border: '1px solid var(--border-md)',
             borderRadius: '12px', gap: '0.25rem',
           }}>
             {[
@@ -211,8 +209,8 @@ export default function ImpactPage() {
                   style={{
                     padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '12px',
                     fontWeight: 600, border: 'none', cursor: 'pointer',
-                    background: active ? '#8FF075' : 'transparent',
-                    color: active ? '#0B0D10' : 'rgba(255, 255, 255, 0.7)',
+                    background: active ? 'var(--accent)' : 'transparent',
+                    color: active ? 'var(--bg)' : 'var(--fg-muted)',
                     transition: 'all 0.18s ease',
                   }}
                 >
@@ -222,7 +220,7 @@ export default function ImpactPage() {
             })}
           </div>
 
-          <div style={{ marginTop: '0.85rem', fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'rgba(255, 255, 255, 0.45)' }}>
+          <div style={{ marginTop: '0.85rem', fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--fg-subtle)' }}>
             {scopeData.periodDescription}
           </div>
         </div>
@@ -236,14 +234,14 @@ export default function ImpactPage() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--fg)', margin: 0 }}>
                   Village Pilot Simulated Achievements
                 </h2>
-                <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', padding: '2px 6px', borderRadius: '4px', background: 'rgba(249, 156, 0, 0.15)', color: '#F99C00', border: '1px solid rgba(249, 156, 0, 0.3)' }}>
+                <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', padding: '2px 6px', borderRadius: '4px', background: 'rgba(249, 156, 0, 0.15)', color: 'var(--amber)', border: '1px solid rgba(249, 156, 0, 0.3)' }}>
                   MOCK DATA
                 </span>
               </div>
-              <p style={{ margin: '0.25rem 0 0', color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.82rem', fontFamily: 'var(--font-mono)' }}>
+              <p style={{ margin: '0.25rem 0 0', color: 'var(--fg-subtle)', fontSize: '0.82rem', fontFamily: 'var(--font-mono)' }}>
                 Demonstration values for rural village clusters. Click "Source & Method" on any tile to inspect authentic IPCC / ISO formulas.
               </p>
             </div>
@@ -281,36 +279,36 @@ export default function ImpactPage() {
                       }}>
                         {metric.badge}
                       </span>
-                      <span style={{ fontSize: '11px', color: '#8FF075', fontFamily: 'var(--font-mono)' }}>
+                      <span style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>
                         {metric.delta}
                       </span>
                     </div>
 
-                    <div style={{ fontSize: '2.1rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-mono)', lineHeight: 1.1 }}>
+                    <div style={{ fontSize: '2.1rem', fontWeight: 800, color: 'var(--fg)', fontFamily: 'var(--font-mono)', lineHeight: 1.1 }}>
                       {metric.formattedDisplay}
                     </div>
 
-                    <div style={{ fontSize: '0.92rem', fontWeight: 600, color: '#FFFFFF', marginTop: '0.35rem' }}>
+                    <div style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--fg)', marginTop: '0.35rem' }}>
                       {metric.title}
                     </div>
 
-                    <p style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.6)', lineHeight: 1.5, margin: '0.65rem 0 1rem' }}>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', lineHeight: 1.5, margin: '0.65rem 0 1rem' }}>
                       {metric.description}
                     </p>
                   </div>
 
                   <div style={{
-                    paddingTop: '0.85rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                    paddingTop: '0.85rem', borderTop: '1px solid var(--border)',
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                   }}>
-                    <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.4)', fontFamily: 'var(--font-mono)' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)' }}>
                       Source: {citation?.shortName ?? 'Verified MRV'}
                     </span>
                     <button
                       onClick={() => setActiveCitation(citation)}
                       style={{
-                        background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)',
-                        borderRadius: '6px', padding: '3px 8px', color: '#8FF075', fontSize: '11px',
+                        background: 'var(--surface-2)', border: '1px solid var(--border-md)',
+                        borderRadius: '6px', padding: '3px 8px', color: 'var(--accent)', fontSize: '11px',
                         cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px',
                         fontFamily: 'var(--font-mono)'
                       }}
@@ -336,14 +334,14 @@ export default function ImpactPage() {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8FF075', fontSize: '11px', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent)', fontSize: '11px', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>
                   <Sparkles size={14} /> Tangible Real-World Equivalence
                 </div>
-                <h3 style={{ fontSize: '1.45rem', fontWeight: 700, color: '#FFFFFF', margin: '0.25rem 0 0' }}>
+                <h3 style={{ fontSize: '1.45rem', fontWeight: 700, color: 'var(--fg)', margin: '0.25rem 0 0' }}>
                   What {scopeData.totalCO2eAvoidedKg >= 1000 ? `${(scopeData.totalCO2eAvoidedKg / 1000).toFixed(1)} tCO₂e` : `${scopeData.totalCO2eAvoidedKg} kg CO₂e`} Avoided Actually Means
                 </h3>
               </div>
-              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'rgba(255, 255, 255, 0.5)' }}>
+              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--fg-subtle)' }}>
                 Factor Model: US EPA Greenhouse Gas Equivalencies (2024)
               </span>
             </div>
@@ -353,21 +351,21 @@ export default function ImpactPage() {
                 <div
                   key={eq.label}
                   style={{
-                    background: '#12151A', border: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: 'var(--surface-1)', border: '1px solid var(--border)',
                     borderRadius: '12px', padding: '1.15rem', display: 'flex', flexDirection: 'column',
                     justifyContent: 'space-between'
                   }}
                 >
                   <div>
                     <div style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{eq.icon}</div>
-                    <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#8FF075', fontFamily: 'var(--font-mono)', lineHeight: 1.2 }}>
+                    <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent)', fontFamily: 'var(--font-mono)', lineHeight: 1.2 }}>
                       {eq.formatted}
                     </div>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#FFFFFF', marginTop: '0.35rem' }}>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--fg)', marginTop: '0.35rem' }}>
                       {eq.label}
                     </div>
                   </div>
-                  <div style={{ fontSize: '0.68rem', color: 'rgba(255, 255, 255, 0.4)', marginTop: '0.75rem', fontFamily: 'var(--font-mono)', borderTop: '1px dashed rgba(255, 255, 255, 0.08)', paddingTop: '0.5rem' }}>
+                  <div style={{ fontSize: '0.68rem', color: 'var(--fg-subtle)', marginTop: '0.75rem', fontFamily: 'var(--font-mono)', borderTop: '1px dashed var(--border-md)', paddingTop: '0.5rem' }}>
                     {eq.source}
                   </div>
                 </div>
@@ -379,10 +377,10 @@ export default function ImpactPage() {
         {/* ── Section 3: The Verified Value Chain Protocol (How We Guarantee Impact) ── */}
         <section style={{ marginBottom: '4rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '2.25rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#FFFFFF' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--fg)' }}>
               How CarboTrace Guarantees Zero-Drift MRV
             </h2>
-            <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.85rem', fontFamily: 'var(--font-mono)', maxWidth: 620, margin: '0.35rem auto 0' }}>
+            <p style={{ color: 'var(--fg-subtle)', fontSize: '0.85rem', fontFamily: 'var(--font-mono)', maxWidth: 620, margin: '0.35rem auto 0' }}>
               From bin scan to carbon credit issuance, every metric is bound to cryptographically verifiable physical proof.
             </p>
           </div>
@@ -420,20 +418,20 @@ export default function ImpactPage() {
             ].map(item => (
               <div key={item.step} className="card" style={{ padding: '1.5rem', borderRadius: '14px', position: 'relative' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <div style={{ width: 42, height: 42, borderRadius: '10px', background: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 42, height: 42, borderRadius: '10px', background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {item.icon}
                   </div>
-                  <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#8FF075', fontWeight: 700 }}>
+                  <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 700 }}>
                     STAGE {item.step}
                   </span>
                 </div>
-                <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '0.5rem' }}>
+                <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: 'var(--fg)', marginBottom: '0.5rem' }}>
                   {item.title}
                 </h4>
-                <p style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.6)', lineHeight: 1.55, marginBottom: '1rem' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', lineHeight: 1.55, marginBottom: '1rem' }}>
                   {item.desc}
                 </p>
-                <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: '#8FF075', background: 'rgba(143, 240, 117, 0.08)', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(143, 240, 117, 0.2)' }}>
+                <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--accent)', background: 'rgba(143, 240, 117, 0.08)', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(143, 240, 117, 0.2)' }}>
                   ✓ {item.auditProof}
                 </div>
               </div>
@@ -448,32 +446,32 @@ export default function ImpactPage() {
           <div className="card" style={{ padding: '1.75rem', borderRadius: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
               <Recycle size={18} color="#8FF075" />
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--fg)', margin: 0 }}>
                 Diversion by Waste Stream Classification
               </h3>
             </div>
-            <p style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'var(--font-mono)', marginBottom: '1.25rem' }}>
+            <p style={{ fontSize: '0.78rem', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', marginBottom: '1.25rem' }}>
               Standardised under CPCB Municipal Solid Waste Categories
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {WASTE_STREAM_BREAKDOWN.map(item => (
-                <div key={item.type} style={{ background: '#12151A', padding: '0.875rem', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <div key={item.type} style={{ background: 'var(--surface-1)', padding: '0.875rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.88rem', color: '#FFFFFF' }}>{item.label}</span>
+                    <span style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--fg)' }}>{item.label}</span>
                     <span style={{ fontSize: '0.85rem', fontWeight: 700, color: item.color, fontFamily: 'var(--font-mono)' }}>{item.sharePercent}%</span>
                   </div>
 
                   {/* Progress Bar */}
-                  <div style={{ width: '100%', height: '6px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '3px', overflow: 'hidden', marginBottom: '0.5rem' }}>
+                  <div style={{ width: '100%', height: '6px', background: 'var(--surface-3)', borderRadius: '3px', overflow: 'hidden', marginBottom: '0.5rem' }}>
                     <div style={{ width: `${item.sharePercent}%`, height: '100%', background: item.color, borderRadius: '3px' }} />
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)' }}>
                     <span>{(item.divertedKg / 1000).toFixed(1)} t diverted</span>
                     <span>{(item.co2eAvoidedKg / 1000).toFixed(1)} tCO₂e avoided</span>
                   </div>
-                  <div style={{ fontSize: '10px', color: '#8FF075', marginTop: '0.25rem', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--accent)', marginTop: '0.25rem', fontFamily: 'var(--font-mono)' }}>
                     ↳ Destination: {item.primaryDestination}
                   </div>
                 </div>
@@ -485,11 +483,11 @@ export default function ImpactPage() {
           <div className="card" style={{ padding: '1.75rem', borderRadius: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
               <Layers size={18} color="#00D2EF" />
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--fg)', margin: 0 }}>
                 Processing Technology & Carbon Permanence
               </h3>
             </div>
-            <p style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'var(--font-mono)', marginBottom: '1.25rem' }}>
+            <p style={{ fontSize: '0.78rem', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', marginBottom: '1.25rem' }}>
               Governed by Puro.earth, EBC and EPA WARM Standard Guidelines
             </p>
 
@@ -497,26 +495,26 @@ export default function ImpactPage() {
               {PROCESSING_METHODS_IMPACT.map(method => {
                 const citation = SOURCE_CITATIONS[method.citationId];
                 return (
-                  <div key={method.key} style={{ background: '#12151A', padding: '0.875rem', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <div key={method.key} style={{ background: 'var(--surface-1)', padding: '0.875rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#FFFFFF' }}>{method.name}</span>
-                      <span style={{ fontSize: '11px', color: '#00D2EF', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{method.divertedTons} t treated</span>
+                      <span style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--fg)' }}>{method.name}</span>
+                      <span style={{ fontSize: '11px', color: 'var(--cyan)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{method.divertedTons} t treated</span>
                     </div>
 
-                    <div style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.7)', margin: '0.35rem 0' }}>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--fg-muted)', margin: '0.35rem 0' }}>
                       <strong>Product:</strong> {method.yieldProduct} ({method.yieldOutput})
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'rgba(255, 255, 255, 0.5)' }}>
-                      <div>Factor: <span style={{ color: '#8FF075' }}>{method.co2eRemovalFactor}</span></div>
-                      <div>Permanence: <span style={{ color: '#E2E8F0' }}>{method.carbonSinkPermanence}</span></div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--fg-subtle)' }}>
+                      <div>Factor: <span style={{ color: 'var(--accent)' }}>{method.co2eRemovalFactor}</span></div>
+                      <div>Permanence: <span style={{ color: 'var(--fg)' }}>{method.carbonSinkPermanence}</span></div>
                     </div>
 
                     <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
                       <button
                         onClick={() => setActiveCitation(citation)}
                         style={{
-                          background: 'none', border: 'none', color: '#00D2EF', fontSize: '10px',
+                          background: 'none', border: 'none', color: 'var(--cyan)', fontSize: '10px',
                           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px',
                           fontFamily: 'var(--font-mono)', padding: 0
                         }}
@@ -536,10 +534,10 @@ export default function ImpactPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.25rem' }}>
             <Building size={20} color="#F99C00" />
             <div>
-              <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--fg)', margin: 0 }}>
                 Regional Hubs & Dumpsite Relief
               </h2>
-              <p style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'var(--font-mono)', margin: 0 }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', margin: 0 }}>
                 Empirical landfill diversion and leachate mitigation in major metropolitan clusters
               </p>
             </div>
@@ -549,34 +547,34 @@ export default function ImpactPage() {
             {REGIONAL_IMPACTS.map(reg => (
               <div key={reg.region} className="card card-hover" style={{ padding: '1.25rem', borderRadius: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: '#F99C00', fontWeight: 700 }}>
+                  <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--amber)', fontWeight: 700 }}>
                     {reg.state.toUpperCase()}
                   </span>
-                  <span style={{ fontSize: '11px', color: '#8FF075', fontFamily: 'var(--font-mono)' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>
                     {reg.partnerOrgs} Orgs
                   </span>
                 </div>
-                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '0.5rem' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--fg)', marginBottom: '0.5rem' }}>
                   {reg.region}
                 </h4>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.65)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--fg-muted)' }}>
                   <div>
-                    Waste Diverted: <strong style={{ color: '#FFFFFF', fontFamily: 'var(--font-mono)' }}>{reg.wasteDivertedTons} t</strong>
+                    Waste Diverted: <strong style={{ color: 'var(--fg)', fontFamily: 'var(--font-mono)' }}>{reg.wasteDivertedTons} t</strong>
                   </div>
                   <div>
-                    CO₂e Avoided: <strong style={{ color: '#8FF075', fontFamily: 'var(--font-mono)' }}>{reg.co2eAvoidedTons} tCO₂e</strong>
+                    CO₂e Avoided: <strong style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>{reg.co2eAvoidedTons} tCO₂e</strong>
                   </div>
                   <div>
-                    Leachate Prevented: <strong style={{ color: '#00D2EF', fontFamily: 'var(--font-mono)' }}>{reg.leachatePreventedLitres.toLocaleString()} L</strong>
+                    Leachate Prevented: <strong style={{ color: 'var(--cyan)', fontFamily: 'var(--font-mono)' }}>{reg.leachatePreventedLitres.toLocaleString()} L</strong>
                   </div>
                 </div>
 
                 <div style={{
-                  marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                  fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'var(--font-mono)'
+                  marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px solid var(--border)',
+                  fontSize: '11px', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)'
                 }}>
-                  Relieving: <span style={{ color: '#FFFFFF' }}>{reg.alleviatedLandfill}</span>
+                  Relieving: <span style={{ color: 'var(--fg)' }}>{reg.alleviatedLandfill}</span>
                 </div>
               </div>
             ))}
@@ -588,11 +586,11 @@ export default function ImpactPage() {
           <div className="glass-accent" style={{ borderRadius: '20px', padding: '2.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.35rem' }}>
               <Sliders size={20} color="#8FF075" />
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--fg)', margin: 0 }}>
                 Interactive Village Difference Calculator (Simulator)
               </h2>
             </div>
-            <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.88rem', margin: '0 0 2rem' }}>
+            <p style={{ color: 'var(--fg-muted)', fontSize: '0.88rem', margin: '0 0 2rem' }}>
               Simulate the verified monthly environmental difference and carbon credit yield your village, school, farming cluster, or Gram Panchayat would achieve (mock simulation based on real IPCC factors).
             </p>
 
@@ -602,7 +600,7 @@ export default function ImpactPage() {
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span>Waste Feedstock Type</span>
-                    <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>IPCC Vol 5 Table 5.2</span>
+                    <span style={{ color: 'var(--fg-subtle)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>IPCC Vol 5 Table 5.2</span>
                   </label>
                   <select
                     className="input-base"
@@ -618,8 +616,8 @@ export default function ImpactPage() {
 
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Monthly Village / Farm Output: <strong style={{ color: '#8FF075', fontFamily: 'var(--font-mono)' }}>{simWeightTons} Metric Tons</strong></span>
-                    <span style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{(simWeightTons * 1000).toLocaleString()} kg</span>
+                    <span>Monthly Village / Farm Output: <strong style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>{simWeightTons} Metric Tons</strong></span>
+                    <span style={{ color: 'var(--fg-subtle)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{(simWeightTons * 1000).toLocaleString()} kg</span>
                   </label>
                   <input
                     type="range"
@@ -629,23 +627,23 @@ export default function ImpactPage() {
                     value={simWeightTons}
                     onChange={e => setSimWeightTons(Number(e.target.value))}
                     id="sim-weight-slider"
-                    style={{ width: '100%', accentColor: '#8FF075' }}
+                    style={{ width: '100%', accentColor: 'var(--accent)' }}
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'rgba(255, 255, 255, 0.4)', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)' }}>
                     <span>0.1 t (100 kg - Small Farm)</span>
                     <span>10 t (10,000 kg - Full Village Ward)</span>
                   </div>
                 </div>
 
-                <div style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.6)', background: '#12151A', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--fg-muted)', background: 'var(--surface-1)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
                   ⚠️ <em>Note: Simulated output. Mathematical factors are derived from US EPA WARM v16 & IPCC 2019 standards for tropical rural waste management.</em>
                 </div>
               </div>
 
               {/* Output Readout */}
-              <div style={{ background: '#0F1217', borderRadius: '16px', padding: '1.75rem', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <div style={{ background: 'var(--surface-0)', borderRadius: '16px', padding: '1.75rem', border: '1px solid var(--border)' }}>
                 <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                  <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--fg-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                     Projected Net Avoided Emissions
                   </div>
                   <div className="text-gradient" style={{ fontSize: '2.8rem', fontWeight: 800, fontFamily: 'var(--font-mono)', lineHeight: 1.15 }}>
@@ -654,30 +652,30 @@ export default function ImpactPage() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                  <div style={{ background: '#161A20', borderRadius: '10px', padding: '0.75rem', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>Methane Prevented</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F99C00', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ background: 'var(--surface-2)', borderRadius: '10px', padding: '0.75rem', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--fg-subtle)' }}>Methane Prevented</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--amber)', fontFamily: 'var(--font-mono)' }}>
                       {simMethaneKg.toLocaleString()} kg CH₄
                     </div>
                   </div>
 
-                  <div style={{ background: '#161A20', borderRadius: '10px', padding: '0.75rem', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>Leachate Intercepted</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#00D2EF', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ background: 'var(--surface-2)', borderRadius: '10px', padding: '0.75rem', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--fg-subtle)' }}>Leachate Intercepted</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--cyan)', fontFamily: 'var(--font-mono)' }}>
                       {simLeachateLitres.toLocaleString()} L
                     </div>
                   </div>
 
-                  <div style={{ background: '#161A20', borderRadius: '10px', padding: '0.75rem', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>Cars Displaced</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#8FF075', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ background: 'var(--surface-2)', borderRadius: '10px', padding: '0.75rem', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--fg-subtle)' }}>Cars Displaced</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>
                       {Math.round(simCo2eAvoidedKg / 0.21 / 1000).toLocaleString()}k km
                     </div>
                   </div>
 
-                  <div style={{ background: '#161A20', borderRadius: '10px', padding: '0.75rem', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' }}>W2C Credits Minted</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#AC4BFF', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ background: 'var(--surface-2)', borderRadius: '10px', padding: '0.75rem', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--fg-subtle)' }}>W2C Credits Minted</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--purple)', fontFamily: 'var(--font-mono)' }}>
                       {simCreditsProjected} Credits / mo
                     </div>
                   </div>
@@ -697,46 +695,46 @@ export default function ImpactPage() {
         <section style={{ marginBottom: '4rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.35rem' }}>
             <BookOpen size={20} color="#8FF075" />
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+            <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--fg)', margin: 0 }}>
               Methodology & Standards Bibliography
             </h2>
           </div>
-          <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.82rem', fontFamily: 'var(--font-mono)', margin: '0 0 1.5rem' }}>
+          <p style={{ color: 'var(--fg-subtle)', fontSize: '0.82rem', fontFamily: 'var(--font-mono)', margin: '0 0 1.5rem' }}>
             Official regulatory, academic, and empirical standards used across CarboTrace MRV protocols.
           </p>
 
-          <div style={{ overflowX: 'auto', borderRadius: '14px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left', background: '#0F1217' }}>
+          <div style={{ overflowX: 'auto', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left', background: 'var(--surface-0)' }}>
               <thead>
-                <tr style={{ background: '#161A20', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                  <th style={{ padding: '0.85rem 1rem', color: '#FFFFFF', fontWeight: 700 }}>Standard / Framework</th>
-                  <th style={{ padding: '0.85rem 1rem', color: '#FFFFFF', fontWeight: 700 }}>Issuing Body</th>
-                  <th style={{ padding: '0.85rem 1rem', color: '#FFFFFF', fontWeight: 700 }}>Governing Formula / Baseline</th>
-                  <th style={{ padding: '0.85rem 1rem', color: '#FFFFFF', fontWeight: 700 }}>Verification Mechanism</th>
-                  <th style={{ padding: '0.85rem 1rem', color: '#FFFFFF', fontWeight: 700, textAlign: 'right' }}>Official Ref</th>
+                <tr style={{ background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+                  <th style={{ padding: '0.85rem 1rem', color: 'var(--fg)', fontWeight: 700 }}>Standard / Framework</th>
+                  <th style={{ padding: '0.85rem 1rem', color: 'var(--fg)', fontWeight: 700 }}>Issuing Body</th>
+                  <th style={{ padding: '0.85rem 1rem', color: 'var(--fg)', fontWeight: 700 }}>Governing Formula / Baseline</th>
+                  <th style={{ padding: '0.85rem 1rem', color: 'var(--fg)', fontWeight: 700 }}>Verification Mechanism</th>
+                  <th style={{ padding: '0.85rem 1rem', color: 'var(--fg)', fontWeight: 700, textAlign: 'right' }}>Official Ref</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.values(SOURCE_CITATIONS).map(citation => (
-                  <tr key={citation.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <tr key={citation.id} style={{ borderBottom: '1px solid var(--border)' }}>
                     <td style={{ padding: '1rem', verticalAlign: 'top' }}>
-                      <div style={{ fontWeight: 700, color: '#FFFFFF' }}>{citation.shortName}</div>
-                      <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: '#8FF075', marginTop: '2px' }}>
+                      <div style={{ fontWeight: 700, color: 'var(--fg)' }}>{citation.shortName}</div>
+                      <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--accent)', marginTop: '2px' }}>
                         {citation.standardCode} ({citation.year})
                       </div>
                     </td>
-                    <td style={{ padding: '1rem', verticalAlign: 'top', color: 'rgba(255, 255, 255, 0.7)' }}>
+                    <td style={{ padding: '1rem', verticalAlign: 'top', color: 'var(--fg-muted)' }}>
                       {citation.issuingBody}
                     </td>
                     <td style={{ padding: '1rem', verticalAlign: 'top', maxWidth: 300 }}>
-                      <code style={{ fontSize: '11px', color: '#00D2EF', background: 'rgba(0, 210, 239, 0.08)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginBottom: '4px' }}>
+                      <code style={{ fontSize: '11px', color: 'var(--cyan)', background: 'rgba(0, 210, 239, 0.08)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginBottom: '4px' }}>
                         {citation.formula}
                       </code>
-                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.5)', lineHeight: 1.4 }}>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--fg-subtle)', lineHeight: 1.4 }}>
                         {citation.methodologySummary}
                       </p>
                     </td>
-                    <td style={{ padding: '1rem', verticalAlign: 'top', fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.65)' }}>
+                    <td style={{ padding: '1rem', verticalAlign: 'top', fontSize: '0.78rem', color: 'var(--fg-muted)' }}>
                       {citation.verificationMethod}
                     </td>
                     <td style={{ padding: '1rem', verticalAlign: 'top', textAlign: 'right' }}>
@@ -746,7 +744,7 @@ export default function ImpactPage() {
                         rel="noreferrer"
                         style={{
                           display: 'inline-flex', alignItems: 'center', gap: '4px',
-                          color: '#8FF075', textDecoration: 'none', fontSize: '11px',
+                          color: 'var(--accent)', textDecoration: 'none', fontSize: '11px',
                           fontFamily: 'var(--font-mono)', background: 'rgba(143, 240, 117, 0.08)',
                           padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(143, 240, 117, 0.2)'
                         }}
@@ -768,10 +766,10 @@ export default function ImpactPage() {
           border: '1px solid rgba(143, 240, 117, 0.3)', position: 'relative', overflow: 'hidden'
         }}>
           <div style={{ maxWidth: 580, margin: '0 auto' }}>
-            <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '0.75rem' }}>
+            <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--fg)', marginBottom: '0.75rem' }}>
               Turn Organic Waste into Verified Value
             </h2>
-            <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
+            <p style={{ color: 'var(--fg-muted)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
               Whether you are a hotel generating 500 kg daily, an APMC market handling tons of organic surplus, or an ESG carbon buyer looking for high-permanence biochar removals — our protocol guarantees complete auditability.
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -800,7 +798,7 @@ export default function ImpactPage() {
         >
           <div
             style={{
-              background: '#12151A', border: '1px solid rgba(255, 255, 255, 0.15)',
+              background: 'var(--surface-1)', border: '1px solid var(--border-md)',
               borderRadius: '16px', maxWidth: 600, width: '100%',
               padding: '2rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
               position: 'relative',
@@ -810,7 +808,7 @@ export default function ImpactPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <span style={{
                 fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 700,
-                color: '#8FF075', background: 'rgba(143, 240, 117, 0.1)',
+                color: 'var(--accent)', background: 'rgba(143, 240, 117, 0.1)',
                 padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(143, 240, 117, 0.25)'
               }}>
                 {activeCitation.standardCode} ({activeCitation.year})
@@ -818,7 +816,7 @@ export default function ImpactPage() {
               <button
                 onClick={() => setActiveCitation(null)}
                 style={{
-                  background: 'none', border: 'none', color: 'rgba(255, 255, 255, 0.6)',
+                  background: 'none', border: 'none', color: 'var(--fg-muted)',
                   cursor: 'pointer', fontSize: '18px', padding: '4px'
                 }}
               >
@@ -826,20 +824,20 @@ export default function ImpactPage() {
               </button>
             </div>
 
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '0.35rem' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--fg)', marginBottom: '0.35rem' }}>
               {activeCitation.fullName}
             </h3>
-            <p style={{ fontSize: '0.85rem', color: '#00D2EF', fontFamily: 'var(--font-mono)', marginBottom: '1.25rem' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--cyan)', fontFamily: 'var(--font-mono)', marginBottom: '1.25rem' }}>
               Issuing Body: {activeCitation.issuingBody}
             </p>
 
             <div style={{ marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)', fontFamily: 'var(--font-mono)', marginBottom: '0.25rem' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', marginBottom: '0.25rem' }}>
                 Mathematical Formula / Baseline
               </div>
               <pre style={{
-                background: '#0B0D10', border: '1px solid rgba(255, 255, 255, 0.08)',
-                padding: '0.75rem', borderRadius: '8px', color: '#8FF075', fontSize: '11px',
+                background: 'var(--bg)', border: '1px solid var(--border)',
+                padding: '0.75rem', borderRadius: '8px', color: 'var(--accent)', fontSize: '11px',
                 fontFamily: 'var(--font-mono)', overflowX: 'auto'
               }}>
                 {activeCitation.formula}
@@ -847,19 +845,19 @@ export default function ImpactPage() {
             </div>
 
             <div style={{ marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)', fontFamily: 'var(--font-mono)', marginBottom: '0.25rem' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', marginBottom: '0.25rem' }}>
                 Methodology Summary
               </div>
-              <p style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.7)', lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--fg-muted)', lineHeight: 1.6, margin: 0 }}>
                 {activeCitation.methodologySummary}
               </p>
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)', fontFamily: 'var(--font-mono)', marginBottom: '0.25rem' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', marginBottom: '0.25rem' }}>
                 Verification Protocol
               </div>
-              <p style={{ fontSize: '0.85rem', color: '#E2E8F0', lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--fg)', lineHeight: 1.6, margin: 0 }}>
                 {activeCitation.verificationMethod}
               </p>
             </div>
@@ -886,12 +884,12 @@ export default function ImpactPage() {
       )}
 
       {/* ── Footer ── */}
-      <footer style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', padding: '2rem', textAlign: 'center', background: '#0B0D10' }}>
+      <footer style={{ borderTop: '1px solid var(--border)', padding: '2rem', textAlign: 'center', background: 'var(--bg)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
           <Leaf size={16} color="#8FF075" />
-          <span style={{ fontWeight: 700, color: '#FFFFFF' }}>Carbo<span style={{ color: '#8FF075' }}>Trace</span></span>
+          <span style={{ fontWeight: 700, color: 'var(--fg)' }}>Carbo<span style={{ color: 'var(--accent)' }}>Trace</span></span>
         </div>
-        <p style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.4)', fontFamily: 'var(--font-mono)', margin: 0 }}>
+        <p style={{ fontSize: '0.78rem', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', margin: 0 }}>
           MRV Protocol v2.4 · ISO 14064-2 Compliant · Verified Waste-to-Carbon Value Chain Protocol
         </p>
       </footer>

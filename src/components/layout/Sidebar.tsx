@@ -64,29 +64,29 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <aside className={`sidebar${isOpen ? ' open' : ''}`} style={{ zIndex: 50 }}>
       {/* Logo — Clicking takes to Home Page / */}
-      <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Link to="/" onClick={onClose} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', cursor: 'pointer' }} title="Go to CarboTrace Home">
           <div style={{
             width: 36, height: 36, borderRadius: '10px',
-            background: 'linear-gradient(135deg, rgba(143, 240, 117, 0.2), rgba(59, 130, 246, 0.2))',
+            background: 'var(--accent-dim)',
             border: '1px solid rgba(143, 240, 117, 0.4)',
             boxShadow: '0 0 15px rgba(143, 240, 117, 0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <Leaf size={18} color="#8FF075" />
+            <Leaf size={18} color="var(--accent)" />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#FFFFFF', letterSpacing: '-0.02em', fontFamily: 'var(--font-sans)' }}>
-                Carbo<span style={{ color: '#8FF075' }}>Trace</span>
+              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--fg)', letterSpacing: '-0.02em', fontFamily: 'var(--font-sans)' }}>
+                Carbo<span style={{ color: 'var(--accent)' }}>Trace</span>
               </span>
               <span style={{
                 fontSize: '9px', fontFamily: 'var(--font-mono)', padding: '1px 5px',
-                borderRadius: '4px', background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)'
+                borderRadius: '4px', background: 'var(--surface-2)',
+                border: '1px solid var(--border)', color: 'var(--fg-muted)'
               }}>MRV v2.4</span>
             </div>
-            <p style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', margin: 0 }}>
+            <p style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--fg-subtle)', letterSpacing: '0.06em', margin: 0 }}>
               WASTE-TO-CARBON
             </p>
           </div>
@@ -100,22 +100,22 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       <div style={{ padding: '0.75rem 1rem' }}>
         <div style={{
           display: 'flex', alignItems: 'center', gap: '0.625rem',
-          background: '#12151A', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px',
+          background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '10px',
           padding: '0.625rem 0.75rem',
         }}>
           <div style={{
             width: 28, height: 28, borderRadius: '8px',
-            background: 'rgba(143, 240, 117, 0.12)', border: '1px solid rgba(143, 240, 117, 0.25)',
+            background: 'var(--accent-dim)', border: '1px solid rgba(143, 240, 117, 0.25)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#8FF075',
+            color: 'var(--accent)',
           }}>
             {ROLE_ICON[role]}
           </div>
           <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--fg)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {profile?.full_name}
             </div>
-            <div style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', color: '#8FF075' }}>
+            <div style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>
               {ROLE_LABELS[role]} Portal
             </div>
           </div>
@@ -127,7 +127,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Nav items */}
       <nav style={{ padding: '0 0.5rem', flex: 1, overflowY: 'auto' }}>
         {/* Active role views */}
-        <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.25rem 0.5rem 0.5rem', marginTop: '0.25rem' }}>
+        <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--fg-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.25rem 0.5rem 0.5rem', marginTop: '0.25rem' }}>
           Active Portal ({ROLE_LABELS[role]})
         </div>
         {navItems.map(item => (
@@ -145,7 +145,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* Admin-only Platform Governance */}
         {role === 'admin' && (
           <>
-            <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.85rem 0.5rem 0.35rem' }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--fg-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.85rem 0.5rem 0.35rem' }}>
               Platform Governance
             </div>
             <NavLink to="/admin/orgs" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose} title="All registered organisations">
@@ -160,20 +160,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </>
         )}
 
-        <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.85rem 0.5rem 0.35rem' }}>
+        <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--fg-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.85rem 0.5rem 0.35rem' }}>
           Public Ledgers
         </div>
         <NavLink to="/" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose}>
           <Leaf size={16} /> Live Public Ledger
         </NavLink>
         <NavLink to="/impact" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose}>
-          <ShieldCheck size={16} color="#8FF075" /> Village Impact
+          <ShieldCheck size={16} color="var(--accent)" /> Village Impact
         </NavLink>
       </nav>
 
       {/* Logout */}
-      <div style={{ padding: '1rem', borderTop: '1px solid var(--color-border)' }}>
-        <button className="nav-link" onClick={handleLogout} style={{ color: 'var(--color-danger)', width: '100%' }}>
+      <div style={{ padding: '1rem', borderTop: '1px solid var(--border)' }}>
+        <button className="nav-link" onClick={handleLogout} style={{ color: 'var(--red)', width: '100%' }}>
           <LogOut size={16} /> Sign Out
         </button>
       </div>

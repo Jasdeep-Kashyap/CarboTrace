@@ -8,8 +8,9 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function DriverDashboard() {
   const { profile } = useAuth();
-  const activeRoute  = mockRoutes.find(r => r.status === 'active');
-  const allRoutes    = mockRoutes;
+  const myRoutes = mockRoutes.filter(r => !profile?.id || r.driver_profile_id === profile.id || r.driver_profile_id === 'profile-driver');
+  const activeRoute  = myRoutes.find(r => r.status === 'active');
+  const allRoutes    = myRoutes;
   const todayRoute   = allRoutes.find(r => r.route_date === new Date().toISOString().split('T')[0]);
   const totalStops   = allRoutes.reduce((s, r) => s + r.total_stops, 0);
   const doneStops    = allRoutes.reduce((s, r) => s + r.completed_stops, 0);

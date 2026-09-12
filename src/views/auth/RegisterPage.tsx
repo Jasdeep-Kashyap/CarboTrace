@@ -24,6 +24,7 @@ import {
   Briefcase
 } from 'lucide-react';
 import { useAuth, type RegisterData } from '@/hooks/useAuth';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import type { UserRole } from '@/types/database';
 
 interface RoleOption {
@@ -44,7 +45,7 @@ const ROLES: RoleOption[] = [
     label: 'Generator / Waste Producer',
     badge: 'Source Producer',
     icon: <Package size={22} />,
-    color: '#8FF075',
+    color: 'var(--accent)',
     desc: 'Hotels, restaurants, markets, housing societies. Schedule smart pickups, upload overhead bin photos, verify custody, and log carbon offsets.',
     defaultOrgName: 'The Leela Palace Bengaluru',
     defaultOrgType: 'hotel',
@@ -55,7 +56,7 @@ const ROLES: RoleOption[] = [
     label: 'Collection Logistics Driver',
     badge: 'Logistics Partner',
     icon: <Truck size={22} />,
-    color: '#3B82F6',
+    color: 'var(--blue)',
     desc: 'Authorized transport drivers. Manage optimized routes, 50m geofence auto-arrivals, digital weighbridge receipts, and real-time handoffs.',
     defaultOrgName: 'EcoLogistics Swift Fleet',
     defaultOrgType: 'logistics',
@@ -66,7 +67,7 @@ const ROLES: RoleOption[] = [
     label: 'Recycler / Facility Operator',
     badge: 'Processing Plant',
     icon: <Recycle size={22} />,
-    color: '#00D2EF',
+    color: 'var(--cyan)',
     desc: 'Biochar kilns, composting sites, and biogas plants. Claim incoming feedstock batches, track energy inputs, and generate lab-certified yields.',
     defaultOrgName: 'GreenCycle Biochar Facility',
     defaultOrgType: 'recycler',
@@ -77,7 +78,7 @@ const ROLES: RoleOption[] = [
     label: 'Independent Auditor / Verifier',
     badge: 'MRV Assurance',
     icon: <ShieldCheck size={22} />,
-    color: '#AC4BFF',
+    color: 'var(--purple)',
     desc: 'Accredited third-party carbon auditors. Review immutable telemetry, verify laboratory tests, resolve disputes, and mint verified W2C credits.',
     defaultOrgName: 'Veritas Carbon Verification Bureau',
     defaultOrgType: 'checker',
@@ -88,7 +89,7 @@ const ROLES: RoleOption[] = [
     label: 'Corporate Carbon Buyer',
     badge: 'ESG Offsetting',
     icon: <ShoppingCart size={22} />,
-    color: '#F99C00',
+    color: 'var(--amber)',
     desc: 'Corporate sustainability & ESG officers. Purchase transparent, high-permanence W2C credits and instantly download retirement certificates.',
     defaultOrgName: 'Infosys Global ESG Fund',
     defaultOrgType: 'buyer',
@@ -220,8 +221,8 @@ export default function RegisterPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#0B0D10',
-      color: '#E2E8F0',
+      background: 'var(--bg)',
+      color: 'var(--fg)',
       fontFamily: 'var(--font-sans)',
       position: 'relative',
       overflowX: 'hidden',
@@ -261,42 +262,45 @@ export default function RegisterPage() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
-              color: 'rgba(255, 255, 255, 0.65)',
+              color: 'var(--fg-muted)',
               textDecoration: 'none',
               fontSize: '0.875rem',
               fontWeight: 500,
               padding: '0.5rem 0.875rem',
               borderRadius: '8px',
-              background: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'var(--surface-2)',
+              border: '1px solid var(--border)',
               transition: 'all 0.2s',
             }}
           >
             <ArrowLeft size={16} /> Back to Sign In
           </Link>
 
-          {/* Quick Prefill Pill for easy evaluation */}
-          <button
-            type="button"
-            onClick={handleQuickPrefill}
-            id="btn-quick-prefill"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              background: 'rgba(143, 240, 117, 0.12)',
-              border: '1px solid rgba(143, 240, 117, 0.3)',
-              color: '#8FF075',
-              padding: '0.45rem 0.85rem',
-              borderRadius: '999px',
-              fontSize: '0.78rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-          >
-            <Sparkles size={14} /> Prefill Sample Info
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {/* Quick Prefill Pill for easy evaluation */}
+            <button
+              type="button"
+              onClick={handleQuickPrefill}
+              id="btn-quick-prefill"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                background: 'rgba(143, 240, 117, 0.12)',
+                border: '1px solid rgba(143, 240, 117, 0.3)',
+                color: 'var(--accent)',
+                padding: '0.45rem 0.85rem',
+                borderRadius: '999px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              <Sparkles size={14} /> Prefill Sample Info
+            </button>
+            <ThemeToggle />
+          </div>
         </div>
 
         {/* Brand Header -> Home */}
@@ -312,27 +316,27 @@ export default function RegisterPage() {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-            <Leaf size={22} color="#8FF075" />
+            <Leaf size={22} color="var(--accent)" />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontWeight: 800, fontSize: '1.35rem', color: '#FFFFFF', letterSpacing: '-0.02em' }}>
-                Carbo<span style={{ color: '#8FF075' }}>Trace</span>
+              <span style={{ fontWeight: 800, fontSize: '1.35rem', color: 'var(--fg)', letterSpacing: '-0.02em' }}>
+                Carbo<span style={{ color: 'var(--accent)' }}>Trace</span>
               </span>
               <span style={{
                 fontSize: '9px',
                 fontFamily: 'var(--font-mono)',
                 padding: '2px 6px',
                 borderRadius: '4px',
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                color: 'rgba(255,255,255,0.7)',
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border)',
+                color: 'var(--fg-muted)',
                 letterSpacing: '0.04em',
               }}>
                 MRV v2.4 PROTOCOL
               </span>
             </div>
-            <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.5)', letterSpacing: '0.02em' }}>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--fg-muted)', letterSpacing: '0.02em' }}>
               High-Assurance Waste-to-Carbon Registration
             </p>
           </div>
@@ -340,24 +344,24 @@ export default function RegisterPage() {
 
         {/* Title & Stepper indicator */}
         <div style={{
-          background: '#0F1217',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          background: 'var(--surface-0)',
+          border: '1px solid var(--border)',
           borderRadius: '16px',
           padding: '1.5rem 1.75rem',
           marginBottom: '1.75rem',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
             <div>
-              <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: '#FFFFFF' }}>
+              <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: 'var(--fg)' }}>
                 Register Your Organisation
               </h1>
-              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.5)' }}>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--fg-muted)' }}>
                 {step === 1 ? 'Step 1 of 2: Select your role in the MRV custody chain' : 'Step 2 of 2: Provide account and facility credentials'}
               </p>
             </div>
 
             {/* Stepper Tabs */}
-            <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255, 255, 255, 0.04)', padding: '4px', borderRadius: '10px' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', background: 'var(--surface-2)', padding: '4px', borderRadius: '10px' }}>
               <button
                 type="button"
                 onClick={() => setStep(1)}
@@ -366,7 +370,7 @@ export default function RegisterPage() {
                   borderRadius: '7px',
                   border: 'none',
                   background: step === 1 ? 'rgba(143, 240, 117, 0.2)' : 'transparent',
-                  color: step === 1 ? '#8FF075' : 'rgba(255, 255, 255, 0.6)',
+                  color: step === 1 ? 'var(--accent)' : 'var(--fg-muted)',
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -385,7 +389,7 @@ export default function RegisterPage() {
                   borderRadius: '7px',
                   border: 'none',
                   background: step === 2 ? 'rgba(143, 240, 117, 0.2)' : 'transparent',
-                  color: step === 2 ? '#8FF075' : 'rgba(255, 255, 255, 0.6)',
+                  color: step === 2 ? 'var(--accent)' : 'var(--fg-muted)',
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -400,11 +404,11 @@ export default function RegisterPage() {
           </div>
 
           {/* Progress bar */}
-          <div style={{ height: 4, background: 'rgba(255, 255, 255, 0.08)', borderRadius: '99px', overflow: 'hidden' }}>
+          <div style={{ height: 4, background: 'var(--border)', borderRadius: '99px', overflow: 'hidden' }}>
             <div style={{
               height: '100%',
               width: step === 1 ? '50%' : '100%',
-              background: 'linear-gradient(90deg, #8FF075, #00D2EF)',
+              background: 'linear-gradient(90deg, var(--accent), var(--cyan))',
               transition: 'width 0.3s ease',
             }} />
           </div>
@@ -438,7 +442,7 @@ export default function RegisterPage() {
             borderRadius: '10px',
             background: 'rgba(143, 240, 117, 0.15)',
             border: '1px solid rgba(143, 240, 117, 0.4)',
-            color: '#8FF075',
+            color: 'var(--accent)',
             fontSize: '0.85rem',
             marginBottom: '1.5rem',
           }}>
@@ -451,10 +455,10 @@ export default function RegisterPage() {
         {step === 1 && (
           <div>
             <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Select Your Operating Role
               </span>
-              <span style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.4)' }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--fg-subtle)' }}>
                 Click a card below to select
               </span>
             </div>
@@ -475,8 +479,8 @@ export default function RegisterPage() {
                       gap: '1.15rem',
                       padding: '1.25rem 1.35rem',
                       borderRadius: '14px',
-                      background: isSelected ? `${r.color}12` : '#0F1217',
-                      border: `1.5px solid ${isSelected ? r.color : 'rgba(255, 255, 255, 0.08)'}`,
+                      background: isSelected ? `${r.color}12` : 'var(--surface-0)',
+                      border: `1.5px solid ${isSelected ? r.color : 'var(--border)'}`,
                       boxShadow: isSelected ? `0 0 20px ${r.color}22` : 'none',
                       cursor: 'pointer',
                       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -501,7 +505,7 @@ export default function RegisterPage() {
                     {/* Content */}
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
-                        <span style={{ fontWeight: 700, fontSize: '1rem', color: isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.9)' }}>
+                        <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--fg)' }}>
                           {r.label}
                         </span>
                         <span style={{
@@ -519,7 +523,7 @@ export default function RegisterPage() {
                       <p style={{
                         margin: 0,
                         fontSize: '0.84rem',
-                        color: 'rgba(255, 255, 255, 0.55)',
+                        color: 'var(--fg-muted)',
                         lineHeight: 1.55,
                       }}>
                         {r.desc}
@@ -531,7 +535,7 @@ export default function RegisterPage() {
                       width: 22,
                       height: 22,
                       borderRadius: '50%',
-                      border: `2px solid ${isSelected ? r.color : 'rgba(255, 255, 255, 0.25)'}`,
+                      border: `2px solid ${isSelected ? r.color : 'var(--border-md)'}`,
                       background: isSelected ? r.color : 'transparent',
                       display: 'flex',
                       alignItems: 'center',
@@ -540,7 +544,7 @@ export default function RegisterPage() {
                       flexShrink: 0,
                       transition: 'all 0.2s',
                     }}>
-                      {isSelected && <Check size={14} color="#0B0D10" strokeWidth={3} />}
+                      {isSelected && <Check size={14} color="#FFFFFF" strokeWidth={3} />}
                     </div>
                   </div>
                 );
@@ -560,8 +564,8 @@ export default function RegisterPage() {
                   gap: '0.5rem',
                   padding: '0.85rem 1.75rem',
                   borderRadius: '10px',
-                  background: '#8FF075',
-                  color: '#0B0D10',
+                  background: 'var(--accent)',
+                  color: 'var(--bg)',
                   fontWeight: 700,
                   fontSize: '0.92rem',
                   border: 'none',
@@ -594,10 +598,10 @@ export default function RegisterPage() {
                   {activeRoleConfig.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     Registering Account As
                   </div>
-                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#FFFFFF' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--fg)' }}>
                     {activeRoleConfig.label}
                   </div>
                 </div>
@@ -623,15 +627,15 @@ export default function RegisterPage() {
 
             {/* Account Information Card */}
             <div style={{
-              background: '#0F1217',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'var(--surface-0)',
+              border: '1px solid var(--border)',
               borderRadius: '14px',
               padding: '1.75rem',
               marginBottom: '1.5rem',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                <User size={18} color="#8FF075" />
-                <h2 style={{ fontSize: '1rem', fontWeight: 600, margin: 0, color: '#FFFFFF' }}>
+                <User size={18} color="var(--accent)" />
+                <h2 style={{ fontSize: '1rem', fontWeight: 600, margin: 0, color: 'var(--fg)' }}>
                   Representative / Lead Account Details
                 </h2>
               </div>
@@ -696,7 +700,7 @@ export default function RegisterPage() {
                         transform: 'translateY(-50%)',
                         background: 'none',
                         border: 'none',
-                        color: 'rgba(255, 255, 255, 0.4)',
+                        color: 'var(--fg-subtle)',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -726,15 +730,15 @@ export default function RegisterPage() {
 
             {/* Organisation Information Card */}
             <div style={{
-              background: '#0F1217',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'var(--surface-0)',
+              border: '1px solid var(--border)',
               borderRadius: '14px',
               padding: '1.75rem',
               marginBottom: '2rem',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                <Building2 size={18} color="#00D2EF" />
-                <h2 style={{ fontSize: '1rem', fontWeight: 600, margin: 0, color: '#FFFFFF' }}>
+                <Building2 size={18} color="var(--cyan)" />
+                <h2 style={{ fontSize: '1rem', fontWeight: 600, margin: 0, color: 'var(--fg)' }}>
                   Organisation & Operating Facility
                 </h2>
               </div>
@@ -766,7 +770,7 @@ export default function RegisterPage() {
                     className="input-base"
                     value={form.orgType}
                     onChange={e => setForm({ ...form, orgType: e.target.value })}
-                    style={{ background: '#12151A', color: '#E2E8F0' }}
+                    style={{ background: 'var(--surface-2)', color: 'var(--fg)' }}
                   >
                     <option value="hotel">Hospitality / Hotel</option>
                     <option value="restaurant">Restaurant / Commercial Kitchen</option>
@@ -851,8 +855,8 @@ export default function RegisterPage() {
                   gap: '0.5rem',
                   padding: '0.85rem 2rem',
                   borderRadius: '10px',
-                  background: '#8FF075',
-                  color: '#0B0D10',
+                  background: 'var(--accent)',
+                  color: 'var(--bg)',
                   fontWeight: 700,
                   fontSize: '0.95rem',
                   border: 'none',
@@ -874,9 +878,9 @@ export default function RegisterPage() {
         )}
 
         {/* Footer */}
-        <p style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.5)' }}>
+        <p style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--fg-muted)' }}>
           Already have an active account or demo persona?{' '}
-          <Link to="/login" style={{ color: '#8FF075', textDecoration: 'none', fontWeight: 600 }}>
+          <Link to="/login" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>
             Sign in here
           </Link>
         </p>

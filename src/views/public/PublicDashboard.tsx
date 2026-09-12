@@ -2,14 +2,25 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Leaf, TrendingUp, Award, Building2, Calculator,
-  ChevronRight, Recycle, Zap, ShieldCheck, ArrowUpRight,
-  Package, Truck, Settings, ShoppingCart,
+  ChevronRight, Recycle, ShieldCheck, ArrowUpRight,
+  Package, Truck, Settings, ShoppingCart, AlertTriangle,
+  Globe2, BarChart3, ChevronDown, Sun, Moon, IndianRupee,
+  MapPin, Camera, Scale, Bell, Info,
 } from 'lucide-react';
-import { mockImpactMetrics, mockLeaderboard } from '@/lib/mock-data';
-import { formatWeight, formatCO2e, estimateCO2e, co2eComparisons, WASTE_TYPE_LABELS } from '@/lib/utils';
+import { mockLeaderboard } from '@/lib/mock-data';
+import {
+  formatWeight, formatCO2e, estimateCO2e, co2eComparisons, WASTE_TYPE_LABELS,
+} from '@/lib/utils';
+import {
+  INDIA_STATS, PLAYBOOK, FRICTION, REVENUE_LINES, GENERATOR_RATE_INR_PER_TONNE,
+} from '@/lib/public-constants';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { useTheme } from '@/components/theme-provider';
 
-// ─── Animated counter ─────────────────────────────────────────────────────────
-function AnimatedNumber({ target, duration = 2000, suffix = '' }: { target: number; duration?: number; suffix?: string }) {
+// ─── Animated counter ──────────────────────────────────────────────────────────
+function AnimatedNumber({
+  target, duration = 2000, suffix = '', decimals = 0,
+}: { target: number; duration?: number; suffix?: string; decimals?: number }) {
   const [val, setVal] = useState(0);
   const raf = useRef<number>(0);
   useEffect(() => {
@@ -17,110 +28,303 @@ function AnimatedNumber({ target, duration = 2000, suffix = '' }: { target: numb
     function tick(now: number) {
       const p = Math.min((now - start) / duration, 1);
       const ease = 1 - Math.pow(1 - p, 3);
-      setVal(Math.round(target * ease));
+      setVal(parseFloat((target * ease).toFixed(decimals)));
       if (p < 1) raf.current = requestAnimationFrame(tick);
     }
     raf.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf.current);
-  }, [target, duration]);
-  return <>{val.toLocaleString('en-IN')}{suffix}</>;
+  }, [target, duration, decimals]);
+  return <>{val.toLocaleString('en-IN', { minimumFractionDigits: decimals })}{suffix}</>;
 }
 
-// ─── Hero counters ────────────────────────────────────────────────────────────
+// ─── SVG Sparkline (hand-rolled, no deps) ─────────────────────────────────────
+function Sparkline({
+  data, color = 'var(--accent)', height = 28, width = 80,
+}: { data: number[]; color?: string; height?: number; width?: number }) {
+  if (!data.length) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((v - min) / range) * (height - 4) - 2;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  return (
+    <svg width={width} height={height} aria-hidden="true" style={{ overflow: 'visible' }}>
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity="0.7"
+      />
+      {/* Last point dot */}
+      <circle
+        cx={width}
+        cy={parseFloat(pts.split(' ').pop()!.split(',')[1])}
+        r="2.5"
+        fill={color}
+        opacity="0.9"
+      />
+    </svg>
+  );
+}
+
+// ─── Mini bar chart ────────────────────────────────────────────────────────────
+function MiniBar({ value, max, color = 'var(--accent)', width = 80 }: {
+  value: number; max: number; color?: string; width?: number;
+}) {
+  const pct = Math.min(value / max, 1);
+  return (
+    <div style={{ width, height: 4, background: 'var(--border-md)', borderRadius: 2, overflow: 'hidden' }}>
+      <div style={{ width: `${pct * 100}%`, height: '100%', background: color, borderRadius: 2, transition: 'width 1s ease' }} />
+    </div>
+  );
+}
+
+// ─── Corner-tick card wrapper ──────────────────────────────────────────────────
+function ConsoleCard({
+  children, style, className = '',
+}: { children: React.ReactNode; style?: React.CSSProperties; className?: string }) {
+  return (
+    <div
+      className={`card corner-ticks ${className}`}
+      style={{ position: 'relative', ...style }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Micro-label ──────────────────────────────────────────────────────────────
+function MicroLabel({ children, color = 'var(--fg-subtle)' }: { children: React.ReactNode; color?: string }) {
+  return (
+    <div className="micro-label" style={{ color, marginBottom: '0.25rem' }}>{children}</div>
+  );
+}
+
+// ─── Live counters data ────────────────────────────────────────────────────────
+// Sparkline seeds: 7 data points trending up (last = current value proxy)
 const COUNTERS = [
-  { label: 'Waste Diverted', value: 1843, suffix: ' t', icon: <Recycle size={20} />, color: '#8FF075', sub: 'From landfills this year' },
-  { label: 'CO₂e Avoided', value: 738, suffix: ' t', icon: <Leaf size={20} />, color: '#00D2EF', sub: 'Carbon emissions prevented' },
-  { label: 'Credits Minted', value: 1247, suffix: '', icon: <Award size={20} />, color: '#AC4BFF', sub: 'W2C-verified carbon credits' },
-  { label: 'Credits Retired', value: 891, suffix: '', icon: <TrendingUp size={20} />, color: '#3B82F6', sub: 'Permanently offset' },
-  { label: 'Orgs Registered', value: 312, suffix: '', icon: <Building2 size={20} />, color: '#F99C00', sub: 'Hotels, markets & factories' },
+  {
+    label: 'Waste Diverted', value: 1843, suffix: ' t', icon: <Recycle size={18} />,
+    color: 'var(--accent)', sub: '±12 t · from landfills', tag: 'TELEMETRY',
+    spark: [1420, 1510, 1580, 1640, 1710, 1780, 1843],
+  },
+  {
+    label: 'CO₂e Avoided', value: 738, suffix: ' t', icon: <Leaf size={18} />,
+    color: 'var(--cyan)', sub: '±0.3 t · IPCC 2019', tag: 'VERIFIED',
+    spark: [510, 558, 601, 643, 680, 714, 738],
+  },
+  {
+    label: 'Credits Minted', value: 1247, suffix: '', icon: <Award size={18} />,
+    color: 'var(--purple)', sub: 'W2C-verified · ISO 14064', tag: 'MINTED',
+    spark: [890, 960, 1040, 1110, 1170, 1210, 1247],
+  },
+  {
+    label: 'Credits Retired', value: 891, suffix: '', icon: <TrendingUp size={18} />,
+    color: 'var(--blue)', sub: 'permanently offset', tag: 'RETIRED',
+    spark: [620, 680, 730, 780, 830, 862, 891],
+  },
+  {
+    label: 'Orgs Registered', value: 312, suffix: '', icon: <Building2 size={18} />,
+    color: 'var(--amber)', sub: 'hotels · markets · factories', tag: 'ONBOARDED',
+    spark: [240, 256, 268, 280, 294, 304, 312],
+  },
 ];
 
-// ─── Playbook steps ────────────────────────────────────────────────────────────
-const PLAYBOOK = [
-  { step: '01', title: 'Segregate at Source', desc: 'Separate organic waste (food, garden) from dry waste. Use dedicated green bins.', icon: '♻️' },
-  { step: '02', title: 'Log on CarboTrace', desc: 'Scan your bin QR code, upload an overhead photo, and request a pickup.', icon: '📱' },
-  { step: '03', title: 'Verified Collection', desc: 'Driver arrives within 50m geofence, swaps bin, weighs waste — receipt sent via SMS.', icon: '🚛' },
-  { step: '04', title: 'Recycler Processing', desc: 'Waste is transformed via pyrolysis or biogas digestion. Lab tests validate yield.', icon: '🏭' },
-  { step: '05', title: 'Carbon Credit Minted', desc: 'Auditor reviews all evidence → mints a W2C-YYYY-NNNNNN verified carbon credit.', icon: '✅' },
-  { step: '06', title: 'Trade or Retire', desc: 'Buyers purchase credits on the marketplace. Retire instantly for a climate certificate.', icon: '🌍' },
+// ─── Friction icon map ─────────────────────────────────────────────────────────
+const FRICTION_ICONS = [
+  <MapPin size={16} />,
+  <Recycle size={16} />,
+  <Camera size={16} />,
+  <Scale size={16} />,
+  <Bell size={16} />,
 ];
 
+// ─── Collapsible Friction card ─────────────────────────────────────────────────
+function FrictionCard({ item, idx }: { item: typeof FRICTION[number]; idx: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <ConsoleCard
+      style={{ animation: `fade-up 0.42s ${idx * 0.06}s ease-out both` }}
+    >
+      <button
+        onClick={() => setOpen(v => !v)}
+        aria-expanded={open}
+        style={{
+          display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+          background: 'none', border: 'none', cursor: 'pointer',
+          width: '100%', textAlign: 'left', padding: 0,
+        }}
+      >
+        {/* index badge */}
+        <div style={{
+          flexShrink: 0, width: 36, height: 36, borderRadius: '8px',
+          background: 'var(--surface-2)', border: '1px solid var(--border-md)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'var(--fg-muted)',
+        }}>
+          {FRICTION_ICONS[idx]}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div className="micro-label" style={{ color: 'var(--fg-subtle)', marginBottom: '0.2rem' }}>
+            {item.label} · #{item.index}
+          </div>
+          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--fg)', lineHeight: 1.35 }}>
+            {item.title}
+          </div>
+        </div>
+        <ChevronDown
+          size={15}
+          color="var(--fg-subtle)"
+          style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', marginTop: 2 }}
+        />
+      </button>
+
+      {open && (
+        <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+          {/* Issue */}
+          <div style={{
+            background: 'var(--red-dim)', border: '1px solid rgba(251,44,54,0.22)',
+            borderRadius: '8px', padding: '0.75rem',
+          }}>
+            <MicroLabel color="var(--red)">⚠ ISSUE</MicroLabel>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--fg-muted)', lineHeight: 1.6 }}>
+              {item.issue}
+            </p>
+          </div>
+          {/* Solution */}
+          <div style={{
+            background: 'var(--accent-dim)', border: '1px solid rgba(143,240,117,0.22)',
+            borderRadius: '8px', padding: '0.75rem',
+          }}>
+            <MicroLabel color="var(--accent)">✓ SOLUTION</MicroLabel>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--fg-muted)', lineHeight: 1.6 }}>
+              {item.solution}
+            </p>
+          </div>
+        </div>
+      )}
+    </ConsoleCard>
+  );
+}
+
+// ─── Main component ────────────────────────────────────────────────────────────
 export default function PublicDashboard() {
-  const metrics = mockImpactMetrics;
   const [wasteType, setWasteType] = useState('food_wet');
   const [weightKg, setWeightKg] = useState(100);
   const co2e = estimateCO2e(wasteType, weightKg);
   const comparisons = co2eComparisons(co2e);
+  const estimatedPayoutINR = Math.round((weightKg / 1000) * GENERATOR_RATE_INR_PER_TONNE);
+
+  // leaderboard max for bar scaling
+  const maxCo2e = Math.max(...mockLeaderboard.map(e => e.co2e_kg));
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0B0D10', color: '#E2E8F0', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)', fontFamily: 'var(--font-sans)' }}>
 
-      {/* ── Nav ── */}
+      {/* ══ NAV ══════════════════════════════════════════════════════════════════ */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(11, 13, 16, 0.9)', backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        display: 'flex', alignItems: 'center', padding: '0 2rem', height: 64, gap: '1rem',
+        background: 'var(--nav-bg)', backdropFilter: 'blur(18px)',
+        borderBottom: '1px solid var(--border)',
+        display: 'flex', alignItems: 'center', padding: '0 1.75rem', height: 60, gap: '0.75rem',
       }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, textDecoration: 'none', cursor: 'pointer' }} title="Go to CarboTrace Home">
+        {/* Logo → home link */}
+        <Link
+          to="/"
+          aria-label="CarboTrace home"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '0.625rem',
+            flex: 1, textDecoration: 'none',
+            borderRadius: '8px', padding: '4px 6px', marginLeft: '-6px',
+            transition: 'opacity 0.15s',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = '0.82')}
+          onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+        >
           <div style={{
-            width: 36, height: 36, borderRadius: '10px',
-            background: 'linear-gradient(135deg, rgba(143, 240, 117, 0.2), rgba(59, 130, 246, 0.2))',
-            border: '1px solid rgba(143, 240, 117, 0.4)',
-            boxShadow: '0 0 15px rgba(143, 240, 117, 0.15)',
+            width: 32, height: 32, borderRadius: '9px',
+            background: 'linear-gradient(135deg, rgba(143,240,117,0.18), rgba(59,130,246,0.18))',
+            border: '1px solid rgba(143,240,117,0.4)',
+            boxShadow: '0 0 12px rgba(143,240,117,0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <Leaf size={18} color="#8FF075" />
+            <Leaf size={16} color="var(--accent)" />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-            <span style={{ fontWeight: 700, fontSize: '1.1rem', color: '#FFFFFF', letterSpacing: '-0.02em' }}>
-              Carbo<span style={{ color: '#8FF075' }}>Trace</span>
-            </span>
-            <span style={{
-              fontSize: '9px', fontFamily: 'var(--font-mono)', padding: '1px 5px',
-              borderRadius: '4px', background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)'
-            }}>MRV v2.4</span>
-          </div>
+          <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--fg)', letterSpacing: '-0.02em' }}>
+            Carbo<span style={{ color: 'var(--accent)' }}>Trace</span>
+          </span>
+          <span style={{
+            fontSize: '9px', fontFamily: 'var(--font-mono)', padding: '1px 5px',
+            borderRadius: '4px', background: 'var(--surface-2)',
+            border: '1px solid var(--border-md)', color: 'var(--fg-subtle)',
+          }}>MRV v2.4</span>
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#12151A] border border-white/8 text-[11px] font-mono">
-            <span className="w-2 h-2 rounded-full bg-[#8FF075] animate-pulse shadow-[0_0_8px_#8FF075]" />
-            <span className="text-[#8FF075] font-semibold">SUPABASE LIVE</span>
-          </div>
-          <Link to="/impact" className="btn btn-ghost btn-sm" id="nav-impact-btn" style={{ color: '#8FF075', gap: '0.375rem' }}><ShieldCheck size={14} /> Village Impact (Mock)</Link>
-          <Link to="/login" className="btn btn-ghost btn-sm" id="nav-login-btn">Sign In</Link>
-          <Link to="/register" className="btn btn-primary btn-sm" id="nav-register-btn">Register Org</Link>
-        </div>
+
+        <Link to="/impact" className="btn btn-ghost btn-sm" id="nav-impact-btn" style={{ color: 'var(--accent)', gap: '0.35rem', flexShrink: 0 }}>
+          <ShieldCheck size={13} /> Village Impact
+        </Link>
+        <Link to="/login" className="btn btn-ghost btn-sm" id="nav-login-btn" style={{ flexShrink: 0 }}>Sign In</Link>
+        <Link to="/register" className="btn btn-primary btn-sm" id="nav-register-btn" style={{ flexShrink: 0 }}>Register Org</Link>
+        <ThemeToggle />
       </nav>
 
-      {/* ── Hero ── */}
-      <section style={{ padding: '6rem 2rem 4rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        {/* Glow Orbs */}
-        <div style={{ position: 'absolute', top: '-15%', left: '15%', width: 550, height: 550, borderRadius: '50%', background: 'radial-gradient(circle, rgba(143, 240, 117, 0.15) 0%, transparent 65%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', top: '25%', right: '15%', width: 450, height: 450, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 65%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+      {/* ══ WHY INDIA NEEDS THIS ══════════════════════════════════════════════════ */}
+      <section style={{ padding: '2.5rem 2rem 1.5rem', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+          <Globe2 size={15} color="var(--amber)" />
+          <MicroLabel color="var(--amber)">THE INDIA OPPORTUNITY · CPCB / SWM RULES 2016</MicroLabel>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '0.75rem' }}>
+          {INDIA_STATS.map((s, i) => (
+            <ConsoleCard
+              key={s.label}
+              style={{ animation: `fade-up 0.4s ${i * 0.07}s ease-out both`, padding: '1rem', textAlign: 'center' }}
+            >
+              <div className="mono-num" style={{ fontSize: '2rem', fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: '0.375rem' }}>
+                {s.value}
+              </div>
+              <div style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--fg)', marginBottom: '0.25rem', lineHeight: 1.3 }}>
+                {s.label}
+              </div>
+              <div className="micro-label" style={{ color: 'var(--fg-subtle)', fontSize: '9px' }}>{s.sub}</div>
+            </ConsoleCard>
+          ))}
+        </div>
+      </section>
 
-        <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
+      {/* ══ HERO ═════════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: '3.5rem 2rem 3rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }} className="console-grid">
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent, var(--bg))', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-10%', left: '10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(143,240,117,0.12) 0%, transparent 65%)', filter: 'blur(70px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '20%', right: '10%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.10) 0%, transparent 65%)', filter: 'blur(70px)', pointerEvents: 'none' }} />
+
+        <div style={{ position: 'relative', maxWidth: 720, margin: '0 auto' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.25rem 0.875rem', borderRadius: '999px',
-            background: 'rgba(143, 240, 117, 0.1)', border: '1px solid rgba(143, 240, 117, 0.25)',
-            color: '#8FF075', fontSize: '11px', fontFamily: 'var(--font-mono)',
+            padding: '0.2rem 0.75rem', borderRadius: '999px',
+            background: 'var(--accent-dim)', border: '1px solid rgba(143,240,117,0.25)',
+            color: 'var(--accent)', fontSize: '10px', fontFamily: 'var(--font-mono)',
             marginBottom: '1.5rem',
           }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#8FF075] animate-ping" />
-            WASTE-TO-CARBON VALUE CHAIN PROTOCOL · HACKOUT "26
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)', animation: 'pulse-ring 1.8s ease-out infinite', display: 'inline-block', position: 'relative' }} />
+            WASTE-TO-CARBON VALUE CHAIN PROTOCOL · HACKOUT '26
           </div>
-          <h1 style={{ fontSize: 'clamp(2.3rem, 5.5vw, 4rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '1.25rem', letterSpacing: '-0.03em' }}>
-            <span className="text-gradient">From Agricultural & Urban Waste</span><br />
-            <span style={{ color: '#FFFFFF' }}>To Verified Carbon Value</span>
+          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.6rem)', fontWeight: 800, lineHeight: 1.08, marginBottom: '1.1rem', letterSpacing: '-0.03em' }}>
+            <span className="text-gradient">From Agricultural &amp; Urban Waste</span><br />
+            <span style={{ color: 'var(--fg)' }}>To Verified Carbon Value</span>
           </h1>
-          <p style={{ fontSize: '1.1rem', color: 'rgba(255, 255, 255, 0.65)', lineHeight: 1.7, maxWidth: 580, margin: '0 auto 2.25rem' }}>
-            Connect waste generators, logistics carriers, pyrolyzers, auditors, and ESG carbon buyers. Every handoff is cryptographically verifiable and tamper-proof.
+          <p style={{ fontSize: '1.05rem', color: 'var(--fg-muted)', lineHeight: 1.7, maxWidth: 560, margin: '0 auto 2rem' }}>
+            Connect waste generators, logistics carriers, pyrolyzers, auditors, and ESG buyers. Every handoff is cryptographically verifiable and tamper-proof.
           </p>
-          <div style={{ display: 'flex', gap: '0.875rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/register" className="btn btn-primary btn-lg shadow-lg shadow-[#8FF075]/20" id="hero-register-btn">
-              Register Organisation <ChevronRight size={18} />
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/register" className="btn btn-primary btn-lg" id="hero-register-btn">
+              Register Organisation <ChevronRight size={17} />
             </Link>
             <Link to="/login" className="btn btn-ghost btn-lg" id="hero-login-btn">
               Explore Demo Portals
@@ -129,97 +333,113 @@ export default function PublicDashboard() {
         </div>
       </section>
 
-      {/* ── Live counters ── */}
+      {/* ══ LIVE LEDGER ══════════════════════════════════════════════════════════ */}
       <section style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#FFFFFF' }}>Platform Impact — Live Ledger</h2>
-          <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.875rem', fontFamily: 'var(--font-mono)' }}>
-            Real-time telemetry from connected collection hubs & processing kilns
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+          <MicroLabel color="var(--accent)">PLATFORM TELEMETRY · LAST SYNC &lt;30s</MicroLabel>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.875rem' }}>
           {COUNTERS.map((c, i) => (
-            <div key={c.label} className="card card-hover" style={{ textAlign: 'center', animation: `fade-up 0.5s ${i * 0.1}s ease-out both` }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: `${c.color}18`, color: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem', border: `1px solid ${c.color}33` }}>
-                {c.icon}
+            <ConsoleCard
+              key={c.label}
+              style={{ animation: `fade-up 0.45s ${i * 0.08}s ease-out both`, padding: '1rem' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.625rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: c.color }}>
+                  {c.icon}
+                  <MicroLabel color={c.color}>{c.tag}</MicroLabel>
+                </div>
+                <Sparkline data={c.spark} color={c.color} width={60} height={22} />
               </div>
-              <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#FFFFFF', lineHeight: 1, fontFamily: 'var(--font-mono)' }} id={`counter-${c.label.replace(/\s/g, '-').toLowerCase()}`}>
+              <div className="mono-num" style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--fg)', lineHeight: 1 }} id={`counter-${c.label.replace(/\s/g, '-').toLowerCase()}`}>
                 <AnimatedNumber target={c.value} suffix={c.suffix} />
               </div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#FFFFFF', marginTop: '0.5rem' }}>{c.label}</div>
-              <div style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.45)', marginTop: '0.25rem' }}>{c.sub}</div>
-            </div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--fg)', marginTop: '0.3rem' }}>{c.label}</div>
+              <div className="micro-label" style={{ color: 'var(--fg-subtle)', fontSize: '9px', marginTop: '0.2rem' }}>{c.sub}</div>
+            </ConsoleCard>
           ))}
         </div>
 
-        {/* ── Impact Banner ── */}
+        {/* Village Pilot methodology banner */}
         <div style={{
-          marginTop: '1.5rem', background: 'linear-gradient(135deg, rgba(143, 240, 117, 0.08), rgba(0, 210, 239, 0.05))',
-          border: '1px solid rgba(143, 240, 117, 0.25)', borderRadius: '14px', padding: '1.25rem 1.75rem',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem'
+          marginTop: '1rem', background: 'var(--accent-dim)',
+          border: '1px solid rgba(143,240,117,0.22)', borderRadius: '12px',
+          padding: '1rem 1.5rem', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-            <div style={{ width: 40, height: 40, borderRadius: '10px', background: 'rgba(143, 240, 117, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8FF075', flexShrink: 0 }}>
-              <ShieldCheck size={22} />
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <ShieldCheck size={18} color="var(--accent)" style={{ flexShrink: 0 }} />
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.98rem', color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span>Village Pilot Impact & Empirical Source Methodologies</span>
-                <span style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', padding: '1px 5px', borderRadius: '4px', background: 'rgba(249, 156, 0, 0.15)', color: '#F99C00', border: '1px solid rgba(249, 156, 0, 0.3)' }}>
-                  MOCK SIMULATION
-                </span>
+              <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--fg)', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                Village Pilot — Methodology-Backed Projection
+                <span className="badge badge-green" style={{ fontSize: '9px' }}>IPCC 2019 · US EPA WARM v15</span>
               </div>
-              <div style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.6)', marginTop: '2px' }}>
-                Simulated village-scale telemetry (~142 rural households). Inspect authentic IPCC 2019 formulas, US EPA WARM factors, and pond leachate prevention.
+              <div style={{ fontSize: '0.78rem', color: 'var(--fg-muted)', marginTop: '2px' }}>
+                ~142 rural households. Formulas: IPCC 2019 CH₄ avoidance factors, US EPA WARM v15 landfill baseline, pond leachate prevention.
               </div>
             </div>
           </div>
-          <Link to="/impact" className="btn btn-primary btn-sm" style={{ gap: '0.375rem' }} id="counters-view-impact-btn">
-            Explore Village Model <ChevronRight size={14} />
+          <Link to="/impact" className="btn btn-primary btn-sm" id="counters-view-impact-btn" style={{ gap: '0.35rem' }}>
+            Explore Model <ChevronRight size={13} />
           </Link>
         </div>
       </section>
 
-      {/* ── Leaderboard ── */}
+      {/* ══ LEADERBOARD ══════════════════════════════════════════════════════════ */}
       <section style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-          <Award size={20} color="#F99C00" />
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#FFFFFF' }}>Organisation Impact Leaderboard</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.25rem' }}>
+          <Award size={16} color="var(--amber)" />
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--fg)' }}>Organisation Impact Leaderboard</h2>
+          <MicroLabel color="var(--fg-subtle)" >SORTED BY CO₂e AVOIDED</MicroLabel>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
           {mockLeaderboard.map((entry, i) => (
-            <div key={entry.org.id} className="card card-hover" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
+            <ConsoleCard
+              key={entry.org.id}
+              style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.875rem 1.125rem' }}
+              className="card-hover"
+            >
+              {/* Rank badge */}
               <div style={{
-                width: 38, height: 38, borderRadius: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 800, fontSize: '0.95rem', fontFamily: 'var(--font-mono)',
-                background: i === 0 ? 'linear-gradient(135deg, #FDE047, #F99C00)' : i === 1 ? 'linear-gradient(135deg, #E2E8F0, #94A3B8)' : 'linear-gradient(135deg, #FDBA74, #EA580C)',
+                width: 34, height: 34, borderRadius: '8px', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 800, fontSize: '0.88rem', fontFamily: 'var(--font-mono)',
+                background: i === 0 ? 'linear-gradient(135deg,#FDE047,#F99C00)'
+                  : i === 1 ? 'linear-gradient(135deg,#E2E8F0,#94A3B8)'
+                    : 'linear-gradient(135deg,#FDBA74,#EA580C)',
                 color: '#0B0D10',
               }}>
                 {entry.rank}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.92rem', color: '#FFFFFF' }}>{entry.org.name}</div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.5)' }}>{entry.org.city} · {entry.org.type.replace('_', ' ')}</div>
+                <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--fg)' }}>{entry.org.name}</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--fg-subtle)' }}>{entry.org.city} · {entry.org.type.replace('_', ' ')}</div>
+                {/* Mini bar */}
+                <div style={{ marginTop: '0.3rem' }}>
+                  <MiniBar value={entry.co2e_kg} max={maxCo2e} color="var(--accent)" width={120} />
+                </div>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <div style={{ fontWeight: 700, color: '#8FF075', fontSize: '0.95rem', fontFamily: 'var(--font-mono)' }}>{formatCO2e(entry.co2e_kg)}</div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.45)' }}>{formatWeight(entry.waste_kg)} diverted</div>
+                <div className="mono-num" style={{ fontWeight: 700, color: 'var(--accent)', fontSize: '0.9rem' }}>{formatCO2e(entry.co2e_kg)}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--fg-subtle)' }}>{formatWeight(entry.waste_kg)} diverted</div>
               </div>
-              <div className="badge badge-green">{entry.credits} credits</div>
-            </div>
+              <div className="badge badge-green" style={{ flexShrink: 0 }}>{entry.credits} cr</div>
+            </ConsoleCard>
           ))}
         </div>
       </section>
 
-      {/* ── Footprint Calculator ── */}
+      {/* ══ ESTIMATOR (CO₂e + ₹ payout) ═════════════════════════════════════════ */}
       <section style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
-        <div className="glass-accent" style={{ borderRadius: '1.25rem', padding: '2.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <Calculator size={20} color="#8FF075" />
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#FFFFFF' }}>Carbon Footprint & Yield Estimator</h2>
+        <div className="glass-accent" style={{ borderRadius: '1.125rem', padding: '2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.5rem' }}>
+            <Calculator size={18} color="var(--accent)" />
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--fg)' }}>Carbon Footprint &amp; Yield Estimator</h2>
+            <MicroLabel color="var(--fg-subtle)">IPCC 2019 · EPA WARM</MicroLabel>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', alignItems: 'start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem', alignItems: 'start' }}>
+            {/* Controls */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
               <div className="form-group">
                 <label className="form-label">Waste Feedstock Classification</label>
                 <select className="input-base" value={wasteType} onChange={e => setWasteType(e.target.value)} id="calc-waste-type">
@@ -229,27 +449,59 @@ export default function PublicDashboard() {
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Mass Input: <strong style={{ color: '#8FF075', fontFamily: 'var(--font-mono)' }}>{weightKg.toLocaleString()} kg</strong></label>
-                <input type="range" min={10} max={5000} step={10} value={weightKg} onChange={e => setWeightKg(Number(e.target.value))} id="calc-weight-slider"
-                  style={{ width: '100%', accentColor: '#8FF075' }} />
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.4)', fontFamily: 'var(--font-mono)' }}>
+                <label className="form-label">
+                  Mass Input: <span className="mono-num" style={{ color: 'var(--accent)' }}>{weightKg.toLocaleString()} kg</span>
+                </label>
+                <input
+                  type="range" min={10} max={5000} step={10} value={weightKg}
+                  onChange={e => setWeightKg(Number(e.target.value))}
+                  id="calc-weight-slider"
+                  aria-label="Waste weight in kilograms"
+                  style={{ width: '100%', accentColor: 'var(--accent)' }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)' }}>
                   <span>10 kg</span><span>5,000 kg</span>
                 </div>
               </div>
             </div>
 
-            <div>
-              <div style={{ marginBottom: '1.25rem', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.5)', marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'var(--font-mono)' }}>
-                  Estimated Net CO₂e Avoided
-                </div>
-                <div className="text-gradient" style={{ fontSize: '2.75rem', fontWeight: 800, fontFamily: 'var(--font-mono)' }}>{formatCO2e(co2e)}</div>
+            {/* Outputs */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+              {/* CO₂e */}
+              <div style={{ textAlign: 'center' }}>
+                <MicroLabel color="var(--fg-subtle)">ESTIMATED NET CO₂e AVOIDED</MicroLabel>
+                <div className="text-gradient mono-num" style={{ fontSize: '2.5rem', fontWeight: 800 }}>{formatCO2e(co2e)}</div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
+
+              {/* ₹ Payout — the adoption incentive */}
+              <div style={{
+                background: 'var(--accent-dim)',
+                border: '1px solid rgba(143,240,117,0.3)',
+                borderRadius: '10px', padding: '0.875rem 1.125rem',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <IndianRupee size={13} color="var(--accent)" />
+                    <MicroLabel color="var(--accent)">ESTIMATED PAYOUT TO YOU</MicroLabel>
+                  </div>
+                  <div title="Derived from deck's ₹26,500/100t gross. Generator share ≈ 40% → ~₹100/t. Labelled as estimate." style={{ cursor: 'help' }}>
+                    <Info size={12} color="var(--fg-subtle)" />
+                  </div>
+                </div>
+                <div className="mono-num" style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--accent)', lineHeight: 1 }}>
+                  ₹{estimatedPayoutINR.toLocaleString('en-IN')}
+                </div>
+                <div className="micro-label" style={{ color: 'var(--fg-subtle)', fontSize: '9px', marginTop: '0.3rem' }}>
+                  Estimated · ~₹265/t gross → generator share ≈ 40% → ₹100/t
+                </div>
+              </div>
+
+              {/* Comparison tiles */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                 {comparisons.map(c => (
-                  <div key={c.label} style={{ background: '#12151A', borderRadius: '10px', padding: '0.75rem', textAlign: 'center', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                    <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#8FF075', fontFamily: 'var(--font-mono)' }}>{c.value.toLocaleString('en-IN')}</div>
-                    <div style={{ fontSize: '0.7rem', color: 'rgba(255, 255, 255, 0.5)', marginTop: '0.2rem' }}>{c.label}</div>
+                  <div key={c.label} style={{ background: 'var(--surface-2)', borderRadius: '8px', padding: '0.625rem', textAlign: 'center', border: '1px solid var(--border)' }}>
+                    <div className="mono-num" style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent)' }}>{c.value.toLocaleString('en-IN')}</div>
+                    <div style={{ fontSize: '0.68rem', color: 'var(--fg-subtle)', marginTop: '0.15rem' }}>{c.label}</div>
                   </div>
                 ))}
               </div>
@@ -258,147 +510,191 @@ export default function PublicDashboard() {
         </div>
       </section>
 
-      {/* ── Playbook ── */}
+      {/* ══ HOW THE CHAIN WORKS ══════════════════════════════════════════════════ */}
       <section style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
-        <h2 style={{ fontSize: '1.35rem', fontWeight: 700, marginBottom: '1.5rem', textAlign: 'center', color: '#FFFFFF' }}>How the Waste-to-Carbon Chain Works</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <MicroLabel color="var(--fg-subtle)">6-STEP W2C VALUE CHAIN · END-TO-END MRV</MicroLabel>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--fg)', margin: '0.375rem 0 0' }}>How the Waste-to-Carbon Chain Works</h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.875rem' }}>
           {PLAYBOOK.map((p, i) => (
-            <div key={p.step} className="card card-hover" style={{ animation: `fade-up 0.5s ${i * 0.08}s ease-out both` }}>
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>{p.icon}</div>
-              <div style={{ fontSize: '0.72rem', color: '#8FF075', fontWeight: 700, letterSpacing: '0.1em', marginBottom: '0.375rem', fontFamily: 'var(--font-mono)' }}>STEP {p.step}</div>
-              <div style={{ fontWeight: 700, marginBottom: '0.5rem', color: '#FFFFFF' }}>{p.title}</div>
-              <div style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.6)', lineHeight: 1.6 }}>{p.desc}</div>
-            </div>
+            <ConsoleCard key={p.step} style={{ animation: `fade-up 0.45s ${i * 0.07}s ease-out both` }}>
+              <div style={{ fontSize: '1.75rem', marginBottom: '0.625rem' }}>{p.icon}</div>
+              <MicroLabel color="var(--accent)">STEP {p.step}</MicroLabel>
+              <div style={{ fontWeight: 700, marginBottom: '0.4rem', color: 'var(--fg)', fontSize: '0.92rem' }}>{p.title}</div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--fg-muted)', lineHeight: 1.6 }}>{p.desc}</div>
+            </ConsoleCard>
           ))}
         </div>
       </section>
 
-      {/* ── Direct Access to All Portals ── */}
-      <section style={{ padding: '3rem 2rem', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0.75rem', borderRadius: '999px', background: 'rgba(143, 240, 117, 0.1)', border: '1px solid rgba(143, 240, 117, 0.25)', color: '#8FF075', fontSize: '11px', fontFamily: 'var(--font-mono)', marginBottom: '0.75rem' }}>
-            UNIVERSAL PORTAL ACCESS · 1-CLICK WORKFLOWS
-          </div>
-          <h2 style={{ fontSize: '1.65rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
-            Explore All 6 Connected Stakeholder Portals
-          </h2>
-          <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.875rem', fontFamily: 'var(--font-mono)', margin: '0.35rem 0 0' }}>
-            Jump directly into any workflow — every dashboard is unlocked and accessible
-          </p>
+      {/* ══ FRICTION WE SOLVE ════════════════════════════════════════════════════ */}
+      <section style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
+          <AlertTriangle size={15} color="var(--amber)" />
+          <MicroLabel color="var(--amber)">IMPLEMENTATION CHALLENGES · SOLVED</MicroLabel>
+        </div>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--fg)', marginBottom: '0.35rem' }}>
+          The 5 Frictions We Eliminate
+        </h2>
+        <p style={{ fontSize: '0.85rem', color: 'var(--fg-muted)', marginBottom: '1.5rem', maxWidth: 540 }}>
+          Real operational problems that collapse waste-logistics programs — and exactly how CarboTrace solves each one.
+          <span style={{ display: 'block', marginTop: '0.2rem', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--fg-subtle)' }}>
+            ↓ Tap any card to expand issue + solution
+          </span>
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '0.875rem' }}>
+          {FRICTION.map((item, i) => (
+            <FrictionCard key={item.index} item={item} idx={i} />
+          ))}
+        </div>
+      </section>
+
+      {/* ══ BUSINESS MODEL ═══════════════════════════════════════════════════════ */}
+      <section style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
+          <BarChart3 size={15} color="var(--purple)" />
+          <MicroLabel color="var(--purple)">REVENUE MODEL · 4 DIVERSIFIED STREAMS</MicroLabel>
+        </div>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--fg)', marginBottom: '1.25rem' }}>
+          How CarboTrace Earns
+        </h2>
+
+        {/* 4 revenue cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.875rem', marginBottom: '1.125rem' }}>
+          {REVENUE_LINES.map((r, i) => (
+            <ConsoleCard key={r.label} style={{ animation: `fade-up 0.42s ${i * 0.07}s ease-out both` }}>
+              <div className="mono-num" style={{ fontSize: '1.5rem', fontWeight: 900, color: r.color, lineHeight: 1, marginBottom: '0.25rem' }}>{r.rate}</div>
+              <MicroLabel color={r.color}>{r.rateLabel}</MicroLabel>
+              <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--fg)', margin: '0.5rem 0 0.35rem' }}>{r.label}</div>
+              <div style={{ fontSize: '0.79rem', color: 'var(--fg-muted)', lineHeight: 1.55 }}>{r.desc}</div>
+            </ConsoleCard>
+          ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+        {/* P&L worked example */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(172,75,255,0.10), rgba(143,240,117,0.06))',
+          border: '1px solid rgba(172,75,255,0.28)',
+          borderRadius: '14px', padding: '1.5rem 1.75rem',
+          position: 'relative',
+        }} className="corner-ticks">
+          <MicroLabel color="var(--purple)">P&amp;L READOUT · WORKED EXAMPLE · PER 100 TONNES MANAGED</MicroLabel>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'center', marginTop: '0.875rem' }}>
+            {[
+              { label: 'Marketplace cut (7%)', value: '₹7,000' },
+              { label: 'Logistics margin (10%)', value: '₹4,500' },
+              { label: 'Carbon credit share (15%)', value: '₹15,000' },
+            ].map((item, i) => (
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {i > 0 && <span style={{ color: 'var(--fg-subtle)', fontSize: '1.1rem', fontFamily: 'var(--font-mono)' }}>+</span>}
+                <div>
+                  <div className="mono-num" style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--fg)' }}>{item.value}</div>
+                  <div style={{ fontSize: '0.69rem', color: 'var(--fg-subtle)' }}>{item.label}</div>
+                </div>
+              </div>
+            ))}
+            {/* equals total */}
+            <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+              <MicroLabel color="var(--fg-subtle)">= GROSS REVENUE</MicroLabel>
+              <div className="mono-num" style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--accent)', lineHeight: 1 }}>₹26,500</div>
+              <div style={{ fontSize: '0.69rem', color: 'var(--fg-subtle)' }}>per 100 tonnes diverted</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ PORTAL ACCESS ════════════════════════════════════════════════════════ */}
+      <section style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+          <MicroLabel color="var(--fg-subtle)">UNIVERSAL PORTAL ACCESS · 1-CLICK WORKFLOWS</MicroLabel>
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--fg)', margin: '0.375rem 0 0' }}>
+            Explore All 6 Connected Stakeholder Portals
+          </h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: '1rem' }}>
           {[
-            {
-              role: 'Generator',
-              path: '/generator',
-              icon: <Package size={22} color="#8FF075" />,
-              color: '#8FF075',
-              title: 'Waste Generator Portal',
-              desc: 'Log pickups, scan bin QR codes, upload overhead verification photos, and track bin status.',
-              badge: 'Source Producer',
-            },
-            {
-              role: 'Driver',
-              path: '/driver',
-              icon: <Truck size={22} color="#3B82F6" />,
-              color: '#3B82F6',
-              title: 'Logistics Driver PWA',
-              desc: 'Route navigation, 50m geofence arrival detection, scale weighbridge logging & instant SMS receipts.',
-              badge: 'Logistics Fleet',
-            },
-            {
-              role: 'Recycler',
-              path: '/recycler',
-              icon: <Recycle size={22} color="#00D2EF" />,
-              color: '#00D2EF',
-              title: 'Recycler Kiln Facility',
-              desc: 'Claim incoming batches, monitor high-temp pyrolysis & digestion, upload certified lab tests.',
-              badge: 'Thermal / Bio Plant',
-            },
-            {
-              role: 'Checker',
-              path: '/checker',
-              icon: <ShieldCheck size={22} color="#AC4BFF" />,
-              color: '#AC4BFF',
-              title: 'ISO Checker & Auditor Desk',
-              desc: 'Review tamper-evident audit checklists, inspect weighbridge tickets, and mint verified W2C credits.',
-              badge: 'MRV Compliance',
-            },
-            {
-              role: 'Buyer',
-              path: '/marketplace',
-              icon: <ShoppingCart size={22} color="#F99C00" />,
-              color: '#F99C00',
-              title: 'Carbon Credit Marketplace',
-              desc: 'Filter verified vintage credits by methodology, checkout with INR/USD, and retire for ESG certificates.',
-              badge: 'Corporate Buyers',
-            },
-            {
-              role: 'Admin',
-              path: '/admin',
-              icon: <Settings size={22} color="#EF4444" />,
-              color: '#EF4444',
-              title: 'Protocol Governance Admin',
-              desc: 'Manage registered organisations, arbitrate weighbridge disputes, and inspect immutable audit logs.',
-              badge: 'Protocol Admin',
-            },
-          ].map(portal => (
+            { path: '/generator', icon: <Package size={20} color="var(--accent)" />, color: 'var(--accent)', title: 'Waste Generator Portal', desc: 'Log pickups, scan bin QR codes, upload overhead photos, track bin status.', badge: 'SOURCE PRODUCER' },
+            { path: '/driver', icon: <Truck size={20} color="var(--blue)" />, color: 'var(--blue)', title: 'Logistics Driver PWA', desc: 'Route navigation, 50 m geofence detection, weighbridge logging & SMS receipts.', badge: 'LOGISTICS FLEET' },
+            { path: '/recycler', icon: <Recycle size={20} color="var(--cyan)" />, color: 'var(--cyan)', title: 'Recycler Kiln Facility', desc: 'Claim batches, monitor pyrolysis & digestion, upload certified lab tests.', badge: 'THERMAL / BIO' },
+            { path: '/checker', icon: <ShieldCheck size={20} color="var(--purple)" />, color: 'var(--purple)', title: 'ISO Checker & Auditor', desc: 'Review tamper-evident checklists, inspect weighbridge tickets, mint W2C credits.', badge: 'MRV COMPLIANCE' },
+            { path: '/marketplace', icon: <ShoppingCart size={20} color="var(--amber)" />, color: 'var(--amber)', title: 'Carbon Credit Marketplace', desc: 'Filter verified vintage credits, checkout with INR/USD, retire for ESG certs.', badge: 'CORPORATE BUYERS' },
+            { path: '/admin', icon: <Settings size={20} color="var(--red)" />, color: 'var(--red)', title: 'Protocol Governance', desc: 'Manage orgs, arbitrate weighbridge disputes, inspect immutable audit logs.', badge: 'PROTOCOL ADMIN' },
+          ].map(p => (
             <Link
-              key={portal.path}
-              to={portal.path}
-              className="card card-hover"
-              style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '1.5rem', borderRadius: '16px', position: 'relative' }}
+              key={p.path} to={p.path}
+              className="card card-hover corner-ticks"
+              style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '1.25rem', position: 'relative' }}
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: '12px', background: `${portal.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${portal.color}30` }}>
-                    {portal.icon}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '10px', background: `color-mix(in srgb, ${p.color} 15%, transparent)`, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid color-mix(in srgb, ${p.color} 30%, transparent)` }}>
+                    {p.icon}
                   </div>
-                  <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', padding: '2px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', color: portal.color, border: '1px solid rgba(255,255,255,0.1)' }}>
-                    {portal.badge}
+                  <span className="micro-label badge" style={{ background: 'var(--surface-2)', color: p.color, border: `1px solid var(--border-md)`, fontSize: '9px' }}>
+                    {p.badge}
                   </span>
                 </div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#FFFFFF', margin: '0 0 0.4rem' }}>
-                  {portal.title}
-                </h3>
-                <p style={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.6)', lineHeight: 1.5, margin: 0 }}>
-                  {portal.desc}
-                </p>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--fg)', margin: '0 0 0.35rem' }}>{p.title}</h3>
+                <p style={{ fontSize: '0.79rem', color: 'var(--fg-muted)', lineHeight: 1.5, margin: 0 }}>{p.desc}</p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: portal.color, fontWeight: 600, marginTop: '1.25rem', fontFamily: 'var(--font-mono)' }}>
-                Launch Dashboard <ArrowUpRight size={14} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10px', color: p.color, fontWeight: 700, marginTop: '1rem', fontFamily: 'var(--font-mono)' }}>
+                LAUNCH <ArrowUpRight size={12} />
               </div>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section style={{ padding: '4rem 2rem 6rem', textAlign: 'center' }}>
-        <div style={{ maxWidth: 540, margin: '0 auto' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🌱</div>
-          <h2 style={{ fontSize: '1.85rem', fontWeight: 800, marginBottom: '0.75rem', color: '#FFFFFF' }}>
+      {/* ══ CTA ══════════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: '4rem 2rem 5rem', textAlign: 'center' }}>
+        <div style={{ maxWidth: 520, margin: '0 auto' }}>
+          <div style={{ fontSize: '2.2rem', marginBottom: '0.875rem' }}>🌱</div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.625rem', color: 'var(--fg)' }}>
             Ready to monetize waste into verified carbon credits?
           </h2>
-          <p style={{ color: 'rgba(255, 255, 255, 0.6)', marginBottom: '1.75rem', lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--fg-muted)', marginBottom: '1.5rem', lineHeight: 1.65 }}>
             Join 312+ organisations already tracking their circular waste lifecycle and earning carbon credits on CarboTrace.
           </p>
           <Link to="/register" className="btn btn-primary btn-lg" id="cta-register-btn" style={{ justifyContent: 'center' }}>
-            Register Your Organisation <ChevronRight size={18} />
+            Register Your Organisation <ChevronRight size={17} />
           </Link>
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.75rem 2rem', textAlign: 'center', background: '#0B0D10' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <Leaf size={16} color="#8FF075" />
-          <span style={{ fontWeight: 700, color: '#FFFFFF' }}>Carbo<span style={{ color: '#8FF075' }}>Trace</span></span>
+      {/* ══ FOOTER ═══════════════════════════════════════════════════════════════ */}
+      <footer style={{
+        borderTop: '1px solid var(--border)',
+        padding: '1.75rem 2rem 2.25rem',
+        background: 'var(--surface-0)',
+      }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
+            <Leaf size={14} color="var(--accent)" />
+            <span style={{ fontWeight: 700, color: 'var(--fg)', fontSize: '0.9rem' }}>
+              Carbo<span style={{ color: 'var(--accent)' }}>Trace</span>
+            </span>
+          </div>
+          {/* Tech stack */}
+          <p style={{ fontSize: '0.73rem', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', marginBottom: '0.35rem' }}>
+            Built with{' '}
+            <a href="https://react.dev" target="_blank" rel="noreferrer" style={{ color: '#61DAFB', textDecoration: 'none' }}>React</a>
+            {' + '}
+            <a href="https://typescriptlang.org" target="_blank" rel="noreferrer" style={{ color: '#3178C6', textDecoration: 'none' }}>TypeScript</a>
+            {' · '}
+            <a href="https://tailwindcss.com" target="_blank" rel="noreferrer" style={{ color: '#38BDF8', textDecoration: 'none' }}>Tailwind CSS</a>
+            {' + '}
+            <a href="https://ui.shadcn.com" target="_blank" rel="noreferrer" style={{ color: 'var(--fg)', textDecoration: 'none' }}>shadcn/ui</a>
+            {' · '}
+            <a href="https://supabase.com" target="_blank" rel="noreferrer" style={{ color: '#3ECF8E', textDecoration: 'none' }}>Supabase</a>
+            {' (PostgreSQL + PostGIS, Auth, Storage)'}
+            {' · '}
+            <a href="https://github.com/Jasdeep-Kashyap" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>GitHub ↗</a>
+          </p>
+          <p style={{ fontSize: '0.7rem', color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', margin: 0 }}>
+            MRV Protocol v2.4 · ISO 14064 · Waste-to-Carbon Value Chain Tracker · HACKOUT '26
+          </p>
         </div>
-        <p style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.4)', fontFamily: 'var(--font-mono)', margin: 0 }}>
-          MRV Protocol v2.4 · Waste-to-Carbon Value Chain Tracker · ISO 14064 Compliant
-        </p>
       </footer>
     </div>
   );

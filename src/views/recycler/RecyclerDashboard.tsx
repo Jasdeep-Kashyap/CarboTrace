@@ -8,10 +8,11 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function RecyclerDashboard() {
   const { profile } = useAuth();
-  const processed  = mockBatches.filter(b => b.status === 'processed').length;
-  const processing = mockBatches.filter(b => b.status === 'processing').length;
-  const received   = mockBatches.filter(b => b.status === 'received').length;
-  const totalInput = mockBatches.reduce((s, b) => s + b.input_weight_kg + (b.confirmed_weight_kg ?? 0), 0);
+  const myBatches = mockBatches.filter(b => !profile?.org_id || b.recycler_org_id === profile.org_id);
+  const processed  = myBatches.filter(b => b.status === 'processed').length;
+  const processing = myBatches.filter(b => b.status === 'processing').length;
+  const received   = myBatches.filter(b => b.status === 'received').length;
+  const totalInput = myBatches.reduce((s, b) => s + b.input_weight_kg + (b.confirmed_weight_kg ?? 0), 0);
 
   return (
     <div>
@@ -46,7 +47,7 @@ export default function RecyclerDashboard() {
               </tr>
             </thead>
             <tbody>
-              {mockBatches.map(batch => (
+              {myBatches.map(batch => (
                 <tr key={batch.id} id={`batch-row-${batch.id}`}>
                   <td>
                     <code style={{ fontSize: '0.75rem', background: 'var(--color-surface-2)', padding: '0.2rem 0.4rem', borderRadius: '4px', color: 'var(--color-text-muted)' }}>

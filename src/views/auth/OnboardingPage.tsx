@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, Building2, User, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { mockOrgs } from '@/lib/mock-data';
 
 export default function OnboardingPage() {
@@ -30,24 +31,25 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-bg)', padding: '2rem' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', padding: '2rem' }}>
+      <div style={{ position: 'absolute', top: '2rem', right: '2rem' }}><ThemeToggle /></div>
       <div style={{ maxWidth: 500, margin: '4rem auto' }}>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem', textAlign: 'center' }}>Complete Your Profile</h1>
-        <p style={{ color: 'var(--color-text-muted)', marginBottom: '2rem', textAlign: 'center' }}>
+        <p style={{ color: 'var(--fg-muted)', marginBottom: '2rem', textAlign: 'center' }}>
           Welcome! Just a few more details before you access the {profile.role} portal.
         </p>
 
         {/* Step indicator */}
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
-          <div style={{ flex: 1, height: 4, borderRadius: '99px', background: 'var(--color-accent)' }} />
-          <div style={{ flex: 1, height: 4, borderRadius: '99px', background: step >= 2 ? 'var(--color-accent)' : 'var(--color-border)', transition: 'background 0.3s' }} />
+          <div style={{ flex: 1, height: 4, borderRadius: '99px', background: 'var(--accent)' }} />
+          <div style={{ flex: 1, height: 4, borderRadius: '99px', background: step >= 2 ? 'var(--accent)' : 'var(--border)', transition: 'background 0.3s' }} />
         </div>
 
         <div className="card" style={{ padding: '1.75rem' }}>
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <User size={18} color="var(--color-accent)" />
+                <User size={18} color="var(--accent)" />
                 <span style={{ fontWeight: 600 }}>Personal Details</span>
               </div>
               <div className="form-group">
@@ -67,7 +69,7 @@ export default function OnboardingPage() {
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Building2 size={18} color="var(--color-accent)" />
+                <Building2 size={18} color="var(--accent)" />
                 <span style={{ fontWeight: 600 }}>Organisation Details</span>
               </div>
               <div className="form-group">

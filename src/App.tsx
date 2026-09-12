@@ -1,9 +1,11 @@
-import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppShell } from '@/components/layout/AppShell';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { PageSkeleton } from '@/components/shared/PageSkeleton';
+import { ShieldAlert } from 'lucide-react';
+import type { UserRole } from '@/types/database';
 
 // Public & Auth (eagerly loaded for fast first paint)
 import PublicDashboard from '@/views/public/PublicDashboard';
@@ -38,10 +40,6 @@ const OrgsPage           = lazy(() => import('@/views/admin/OrgsPage'));
 const DisputesPage       = lazy(() => import('@/views/admin/DisputesPage'));
 const AuditLogPage       = lazy(() => import('@/views/admin/AuditLogPage'));
 
-import { useLocation, Link } from 'react-router-dom';
-import { ShieldAlert } from 'lucide-react';
-import type { UserRole } from '@/types/database';
-
 const ROLE_HOME_MAP: Record<UserRole, string> = {
   generator: '/generator',
   driver: '/driver',
@@ -50,6 +48,43 @@ const ROLE_HOME_MAP: Record<UserRole, string> = {
   buyer: '/buyer',
   admin: '/admin',
 };
+
+function DocumentTitleManager() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const path = location.pathname;
+    let pageTitle = 'Waste-to-Carbon Value Chain Tracker';
+
+    if (path === '/') pageTitle = 'Waste-to-Carbon Value Chain Tracker';
+    else if (path === '/impact') pageTitle = 'Village Impact Pilot & MRV Model';
+    else if (path === '/login') pageTitle = 'Sign In to Portal';
+    else if (path === '/register') pageTitle = 'Register Organisation';
+    else if (path === '/onboarding') pageTitle = 'Organisation Onboarding';
+    else if (path === '/generator') pageTitle = 'Generator Workspace';
+    else if (path === '/generator/new') pageTitle = 'Schedule New Waste Pickup';
+    else if (path.startsWith('/generator/')) pageTitle = 'Pickup Custody Dossier';
+    else if (path === '/driver') pageTitle = 'Logistics Driver Console';
+    else if (path.startsWith('/driver/route/')) pageTitle = 'Active Delivery Manifest';
+    else if (path === '/recycler') pageTitle = 'Facility & Pyrolysis Desk';
+    else if (path === '/recycler/claim') pageTitle = 'Claim Feedstock Batches';
+    else if (path.startsWith('/recycler/batch/')) pageTitle = 'Batch Processing Log';
+    else if (path === '/checker') pageTitle = 'Auditor Desk & MRV Assurance';
+    else if (path === '/checker/queue') pageTitle = 'Carbon Verification Queue';
+    else if (path.startsWith('/checker/audit/')) pageTitle = 'MRV Audit Review';
+    else if (path === '/marketplace') pageTitle = 'Verified Carbon Credit Marketplace';
+    else if (path.startsWith('/marketplace/')) pageTitle = 'Credit Provenance Certificate';
+    else if (path === '/buyer') pageTitle = 'ESG Offsets & Retirement Portfolio';
+    else if (path === '/admin') pageTitle = 'Platform Governance Console';
+    else if (path === '/admin/orgs') pageTitle = 'Registered Organisations Ledger';
+    else if (path === '/admin/disputes') pageTitle = 'Disputes & Arbitration Ledger';
+    else if (path === '/admin/audit-log') pageTitle = 'Immutable Audit Trail';
+
+    document.title = `${pageTitle} | CarboTrace`;
+  }, [location.pathname]);
+
+  return null;
+}
 
 function AccessDenied({ role }: { role?: string }) {
   const targetHome = role && ROLE_HOME_MAP[role as UserRole] ? ROLE_HOME_MAP[role as UserRole] : '/login';
@@ -60,16 +95,16 @@ function AccessDenied({ role }: { role?: string }) {
     }}>
       <div style={{
         width: 64, height: 64, borderRadius: '16px',
-        background: 'rgba(251, 44, 54, 0.12)', border: '1px solid rgba(251, 44, 54, 0.3)',
+        background: 'var(--red-dim)', border: '1px solid rgba(251, 44, 54, 0.3)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem',
-        color: '#FB2C36',
+        color: 'var(--red)',
       }}>
         <ShieldAlert size={32} />
       </div>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '0.5rem' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--fg)', marginBottom: '0.5rem' }}>
         Access Restricted
       </h2>
-      <p style={{ maxWidth: 460, color: 'rgba(255, 255, 255, 0.65)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+      <p style={{ maxWidth: 460, color: 'var(--fg-muted)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
         You do not have authorization to view this workspace. Each portal is strictly isolated to its designated role to ensure custody integrity and data privacy.
       </p>
       <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -110,6 +145,7 @@ function ProtectedRoute({ children, allowedRoles }: {
 export default function App() {
   return (
     <ErrorBoundary>
+      <DocumentTitleManager />
       <Suspense fallback={<div className="page-content"><PageSkeleton /></div>}>
         <Routes>
           {/* Public — no auth required */}

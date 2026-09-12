@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function BuyerDashboard() {
   const { profile } = useAuth();
-  const myCredits = mockCredits.filter(c => c.owner_org_id === 'org-buyer');
+  const myCredits = mockCredits.filter(c => (profile?.org_id ? c.owner_org_id === profile.org_id : c.owner_org_id === 'org-buyer'));
   const retired   = myCredits.filter(c => c.status === 'retired');
   const purchased = myCredits.filter(c => c.status === 'sold');
   const totalCO2e = myCredits.reduce((s, c) => s + c.co2e_kg, 0);
