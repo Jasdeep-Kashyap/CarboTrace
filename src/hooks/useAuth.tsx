@@ -64,10 +64,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const saved = localStorage.getItem(STORAGE_KEY) as UserRole | null;
-    // Default to 'generator' so demo visitors are never blocked
-    const roleToUse = saved ?? 'generator';
-    const profile = mockProfiles.find(p => p.role === roleToUse) ?? mockProfiles[0];
-    setState({ profile, isLoading: false });
+    if (saved) {
+      const profile = mockProfiles.find(p => p.role === saved) ?? null;
+      setState({ profile, isLoading: false });
+      return;
+    }
+
+    setState({ profile: null, isLoading: false });
   }, []);
 
   function login(role: UserRole) {
@@ -172,8 +175,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(CUSTOM_PROFILE_KEY);
     localStorage.removeItem(CUSTOM_ORG_KEY);
-    // Keep a fallback guest demo profile available
-    setState({ profile: mockProfiles[0], isLoading: false });
+    setState({ profile: null, isLoading: false });
   }
 
   return <Ctx.Provider value={{ ...state, login, logout, switchRole, register }}>{children}</Ctx.Provider>;

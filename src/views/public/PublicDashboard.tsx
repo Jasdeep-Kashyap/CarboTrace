@@ -62,7 +62,7 @@ export default function PublicDashboard() {
         borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         display: 'flex', alignItems: 'center', padding: '0 2rem', height: 64, gap: '1rem',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, textDecoration: 'none', cursor: 'pointer' }} title="Go to CarboTrace Home">
           <div style={{
             width: 36, height: 36, borderRadius: '10px',
             background: 'linear-gradient(135deg, rgba(143, 240, 117, 0.2), rgba(59, 130, 246, 0.2))',
@@ -82,7 +82,7 @@ export default function PublicDashboard() {
               border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)'
             }}>MRV v2.4</span>
           </div>
-        </div>
+        </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#12151A] border border-white/8 text-[11px] font-mono">
             <span className="w-2 h-2 rounded-full bg-[#8FF075] animate-pulse shadow-[0_0_8px_#8FF075]" />

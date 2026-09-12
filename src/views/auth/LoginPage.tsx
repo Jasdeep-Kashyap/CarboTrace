@@ -43,8 +43,8 @@ export default function LoginPage() {
         borderRight: '1px solid rgba(255, 255, 255, 0.08)',
         overflowY: 'auto',
       }}>
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2.5rem' }}>
+        {/* Logo -> Home */}
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2.5rem', textDecoration: 'none', cursor: 'pointer' }} title="Go to CarboTrace Home">
           <div style={{
             width: 40, height: 40, borderRadius: '12px',
             background: 'linear-gradient(135deg, rgba(143, 240, 117, 0.2), rgba(59, 130, 246, 0.2))',
@@ -69,7 +69,7 @@ export default function LoginPage() {
               WASTE-TO-CARBON PLATFORM
             </div>
           </div>
-        </div>
+        </Link>
 
         <h1 style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '0.375rem', color: '#FFFFFF' }}>
           Welcome back

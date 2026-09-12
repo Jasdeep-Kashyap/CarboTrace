@@ -38,29 +38,70 @@ const OrgsPage           = lazy(() => import('@/views/admin/OrgsPage'));
 const DisputesPage       = lazy(() => import('@/views/admin/DisputesPage'));
 const AuditLogPage       = lazy(() => import('@/views/admin/AuditLogPage'));
 
-import { useEffect } from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { ShieldAlert } from 'lucide-react';
 import type { UserRole } from '@/types/database';
+
+const ROLE_HOME_MAP: Record<UserRole, string> = {
+  generator: '/generator',
+  driver: '/driver',
+  recycler: '/recycler',
+  checker: '/checker',
+  buyer: '/buyer',
+  admin: '/admin',
+};
+
+function AccessDenied({ role }: { role?: string }) {
+  const targetHome = role && ROLE_HOME_MAP[role as UserRole] ? ROLE_HOME_MAP[role as UserRole] : '/login';
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      minHeight: '65vh', padding: '2rem', textAlign: 'center',
+    }}>
+      <div style={{
+        width: 64, height: 64, borderRadius: '16px',
+        background: 'rgba(251, 44, 54, 0.12)', border: '1px solid rgba(251, 44, 54, 0.3)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem',
+        color: '#FB2C36',
+      }}>
+        <ShieldAlert size={32} />
+      </div>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#FFFFFF', marginBottom: '0.5rem' }}>
+        Access Restricted
+      </h2>
+      <p style={{ maxWidth: 460, color: 'rgba(255, 255, 255, 0.65)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+        You do not have authorization to view this workspace. Each portal is strictly isolated to its designated role to ensure custody integrity and data privacy.
+      </p>
+      <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <Link to={targetHome} className="btn btn-primary" style={{ gap: '0.5rem' }}>
+          Return to My Portal
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 function ProtectedRoute({ children, allowedRoles }: {
   children: React.ReactNode;
-  allowedRoles?: string[];
+  allowedRoles?: UserRole[];
 }) {
-  const { profile, isLoading, switchRole } = useAuth();
-
-  useEffect(() => {
-    if (allowedRoles && allowedRoles.length > 0 && profile && !allowedRoles.includes(profile.role)) {
-      // Auto-adapt persona to match the requested dashboard so the user can freely explore
-      const targetRole = allowedRoles[0] as UserRole;
-      switchRole(targetRole);
-    }
-  }, [allowedRoles, profile, switchRole]);
+  const { profile, isLoading } = useAuth();
+  const location = useLocation();
 
   if (isLoading) {
     return (
       <div className="page-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-        Loading…
+        <PageSkeleton />
       </div>
     );
+  }
+
+  if (!profile) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(profile.role)) {
+    return <AccessDenied role={profile.role} />;
   }
 
   return <>{children}</>;
@@ -102,11 +143,11 @@ export default function App() {
             <Route path="/checker/audit/:id"  element={<ProtectedRoute allowedRoles={['checker', 'admin']}><AuditReviewPage /></ProtectedRoute>} />
 
             {/* Marketplace / Buyer */}
-            <Route path="/marketplace"        element={<MarketplacePage />} />
-            <Route path="/marketplace/:id"    element={<CreditDetailPage />} />
+            <Route path="/marketplace"        element={<ProtectedRoute allowedRoles={['buyer', 'generator', 'recycler', 'admin']}><MarketplacePage /></ProtectedRoute>} />
+            <Route path="/marketplace/:id"    element={<ProtectedRoute allowedRoles={['buyer', 'generator', 'recycler', 'admin']}><CreditDetailPage /></ProtectedRoute>} />
             <Route path="/buyer"              element={<ProtectedRoute allowedRoles={['buyer', 'admin']}><BuyerDashboard /></ProtectedRoute>} />
 
-            {/* Admin */}
+            {/* Admin & Platform-wide Governance (Strictly Admin only) */}
             <Route path="/admin"              element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/orgs"         element={<ProtectedRoute allowedRoles={['admin']}><OrgsPage /></ProtectedRoute>} />
             <Route path="/admin/disputes"     element={<ProtectedRoute allowedRoles={['admin']}><DisputesPage /></ProtectedRoute>} />

@@ -1,7 +1,8 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Truck, Recycle, ShieldCheck, ShoppingCart,
   Settings, LogOut, Leaf, Package, MapPin, ClipboardList, X,
+  Building2, AlertTriangle, FileText
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { ROLE_LABELS } from '@/lib/utils';
@@ -50,7 +51,7 @@ const ROLE_ICON: Record<UserRole, React.ReactNode> = {
 interface SidebarProps { isOpen: boolean; onClose: () => void; }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const { profile, logout, switchRole } = useAuth();
+  const { profile, logout } = useAuth();
   const navigate = useNavigate();
   const role = profile?.role ?? 'generator';
   const navItems = NAV_BY_ROLE[role] ?? [];
@@ -62,9 +63,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   return (
     <aside className={`sidebar${isOpen ? ' open' : ''}`} style={{ zIndex: 50 }}>
-      {/* Logo */}
+      {/* Logo — Clicking takes to Home Page / */}
       <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <Link to="/" onClick={onClose} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', cursor: 'pointer' }} title="Go to CarboTrace Home">
           <div style={{
             width: 36, height: 36, borderRadius: '10px',
             background: 'linear-gradient(135deg, rgba(143, 240, 117, 0.2), rgba(59, 130, 246, 0.2))',
@@ -89,7 +90,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               WASTE-TO-CARBON
             </p>
           </div>
-        </div>
+        </Link>
         <button className="btn-ghost" style={{ padding: '0.25rem', borderRadius: '6px', display: 'none' }} onClick={onClose} id="sidebar-close-btn">
           <X size={16} />
         </button>
@@ -141,61 +142,32 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </NavLink>
         ))}
 
-        {/* All Available Dashboards */}
-        <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.85rem 0.5rem 0.35rem' }}>
-          All Dashboards
-        </div>
-        <NavLink
-          to="/generator"
-          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-          onClick={() => { switchRole('generator'); onClose(); }}
-        >
-          <Package size={16} /> Generator (Waste Source)
-        </NavLink>
-        <NavLink
-          to="/driver"
-          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-          onClick={() => { switchRole('driver'); onClose(); }}
-        >
-          <Truck size={16} /> Driver Logistics
-        </NavLink>
-        <NavLink
-          to="/recycler"
-          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-          onClick={() => { switchRole('recycler'); onClose(); }}
-        >
-          <Recycle size={16} /> Recycler (Pyrolysis)
-        </NavLink>
-        <NavLink
-          to="/checker"
-          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-          onClick={() => { switchRole('checker'); onClose(); }}
-        >
-          <ShieldCheck size={16} /> Checker Auditor Desk
-        </NavLink>
-        <NavLink
-          to="/marketplace"
-          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-          onClick={() => { switchRole('buyer'); onClose(); }}
-        >
-          <ShoppingCart size={16} /> Credit Marketplace
-        </NavLink>
-        <NavLink
-          to="/admin"
-          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-          onClick={() => { switchRole('admin'); onClose(); }}
-        >
-          <Settings size={16} /> Protocol Admin
-        </NavLink>
+        {/* Admin-only Platform Governance */}
+        {role === 'admin' && (
+          <>
+            <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.85rem 0.5rem 0.35rem' }}>
+              Platform Governance
+            </div>
+            <NavLink to="/admin/orgs" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose} title="All registered organisations">
+              <Building2 size={16} /> All Organisations
+            </NavLink>
+            <NavLink to="/admin/audit-log" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose} title="Immutable blockchain audit log">
+              <FileText size={16} /> Audit Log
+            </NavLink>
+            <NavLink to="/admin/disputes" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose} title="Disputes across all pickups">
+              <AlertTriangle size={16} /> Disputes Ledger
+            </NavLink>
+          </>
+        )}
 
         <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.85rem 0.5rem 0.35rem' }}>
-          Public & Impact
+          Public Ledgers
         </div>
         <NavLink to="/" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose}>
           <Leaf size={16} /> Live Public Ledger
         </NavLink>
         <NavLink to="/impact" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose}>
-          <ShieldCheck size={16} color="#8FF075" /> Village Impact (Mock)
+          <ShieldCheck size={16} color="#8FF075" /> Village Impact
         </NavLink>
       </nav>
 

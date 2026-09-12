@@ -299,8 +299,8 @@ export default function RegisterPage() {
           </button>
         </div>
 
-        {/* Brand Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1.25rem' }}>
+        {/* Brand Header -> Home */}
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1.25rem', textDecoration: 'none', cursor: 'pointer' }} title="Go to CarboTrace Home">
           <div style={{
             width: 44,
             height: 44,
@@ -336,7 +336,7 @@ export default function RegisterPage() {
               High-Assurance Waste-to-Carbon Registration
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Title & Stepper indicator */}
         <div style={{

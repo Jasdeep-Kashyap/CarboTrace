@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Menu, Bell, ChevronDown, Check, Package, Truck, Recycle, ShieldCheck, ShoppingCart, Settings, Database, ExternalLink, X } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Menu, Bell, ChevronDown, Check, Package, Truck, Recycle, ShieldCheck, ShoppingCart, Settings, Database, ExternalLink, X, Leaf } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { ROLE_LABELS, ROLE_COLORS } from '@/lib/utils';
 import { isSupabaseConfigured } from '@/lib/supabase';
@@ -57,6 +57,34 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         <Menu size={20} />
       </button>
 
+      {/* Clickable Brand Logo -> Home / */}
+      <Link
+        to="/"
+        id="topbar-logo-home"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          textDecoration: 'none',
+          padding: '0.25rem 0.5rem',
+          borderRadius: '8px',
+          transition: 'opacity 0.2s',
+        }}
+        title="Go to CarboTrace Home Page"
+      >
+        <div style={{
+          width: 28, height: 28, borderRadius: '8px',
+          background: 'linear-gradient(135deg, rgba(143, 240, 117, 0.2), rgba(59, 130, 246, 0.2))',
+          border: '1px solid rgba(143, 240, 117, 0.35)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Leaf size={15} color="#8FF075" />
+        </div>
+        <span style={{ fontWeight: 700, fontSize: '0.92rem', color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+          Carbo<span style={{ color: '#8FF075' }}>Trace</span>
+        </span>
+      </Link>
+
       {/* Sync pill */}
       <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-[#12151A] border border-white/8 text-[11px] font-mono">
         <span className="w-2 h-2 rounded-full bg-[#8FF075] animate-pulse shadow-[0_0_8px_#8FF075]" />
@@ -77,74 +105,84 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       </button>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginLeft: 'auto' }}>
-        {/* 1-Click Persona Switcher */}
-        <div ref={dropdownRef} style={{ position: 'relative' }}>
-          <button
-            type="button"
-            onClick={() => setDropdownOpen(v => !v)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#12151A] hover:bg-[#161A20] border border-white/10 text-xs text-white transition-all shadow-sm cursor-pointer"
-            title="Switch demo persona"
-          >
+        {/* Role Badge (Static for non-admin, Administrative Switcher for Admin only) */}
+        {role === 'admin' ? (
+          <div ref={dropdownRef} style={{ position: 'relative' }}>
+            <button
+              type="button"
+              onClick={() => setDropdownOpen(v => !v)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#12151A] hover:bg-[#161A20] border border-red-500/30 text-xs text-white transition-all shadow-sm cursor-pointer"
+              title="Admin: Audit Role Switcher"
+            >
+              <span className="w-2 h-2 rounded-full bg-red-400" />
+              <div className="flex flex-col text-left">
+                <span className="text-[9px] uppercase font-mono text-red-400/80 leading-none">Admin Authority</span>
+                <span className="font-semibold text-white capitalize leading-tight">Switch Persona</span>
+              </div>
+              <ChevronDown size={14} className="text-white/50" />
+            </button>
+
+            {dropdownOpen && (
+              <div
+                style={{
+                  position: 'absolute', right: 0, top: 'calc(100% + 8px)',
+                  width: '260px', borderRadius: '14px',
+                  background: '#12151A', border: '1px solid rgba(255, 255, 255, 0.12)',
+                  boxShadow: '0 20px 30px rgba(0, 0, 0, 0.6)',
+                  padding: '0.5rem', zIndex: 60,
+                }}
+              >
+                <div style={{ padding: '0.375rem 0.5rem 0.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', marginBottom: '0.375rem' }}>
+                  <p style={{ margin: 0, fontSize: '10px', fontFamily: 'var(--font-mono)', color: '#FB2C36', textTransform: 'uppercase', fontWeight: 600 }}>
+                    Admin Persona Delegation
+                  </p>
+                  <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Authorized supervisory inspection
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  {ROLES_LIST.map(r => {
+                    const isActive = r.role === role;
+                    return (
+                      <button
+                        key={r.role}
+                        type="button"
+                        onClick={() => handleSwitchRole(r.role, r.path)}
+                        style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          padding: '0.45rem 0.625rem', borderRadius: '8px',
+                          fontSize: '12px', border: 'none', cursor: 'pointer',
+                          textAlign: 'left', width: '100%',
+                          background: isActive ? 'rgba(143, 240, 117, 0.12)' : 'transparent',
+                          color: isActive ? '#8FF075' : 'rgba(255, 255, 255, 0.8)',
+                          fontWeight: isActive ? 600 : 400,
+                          transition: 'background 0.15s',
+                        }}
+                        onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; }}
+                        onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span className={r.color}>{r.icon}</span>
+                          <span>{r.label}</span>
+                        </div>
+                        {isActive && <Check size={14} color="#8FF075" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#12151A] border border-white/10 text-xs text-white">
             <span className="w-2 h-2 rounded-full bg-[#8FF075]" />
             <div className="flex flex-col text-left">
-              <span className="text-[9px] uppercase font-mono text-white/40 leading-none">Persona</span>
+              <span className="text-[9px] uppercase font-mono text-white/40 leading-none">Role</span>
               <span className="font-semibold text-white capitalize leading-tight">{ROLE_LABELS[role]}</span>
             </div>
-            <ChevronDown size={14} className="text-white/50" />
-          </button>
-
-          {dropdownOpen && (
-            <div
-              style={{
-                position: 'absolute', right: 0, top: 'calc(100% + 8px)',
-                width: '260px', borderRadius: '14px',
-                background: '#12151A', border: '1px solid rgba(255, 255, 255, 0.12)',
-                boxShadow: '0 20px 30px rgba(0, 0, 0, 0.6)',
-                padding: '0.5rem', zIndex: 60,
-              }}
-            >
-              <div style={{ padding: '0.375rem 0.5rem 0.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', marginBottom: '0.375rem' }}>
-                <p style={{ margin: 0, fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'uppercase' }}>
-                  1-Click Persona Switcher
-                </p>
-                <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255, 255, 255, 0.7)' }}>
-                  Test verified end-to-end workflows
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                {ROLES_LIST.map(r => {
-                  const isActive = r.role === role;
-                  return (
-                    <button
-                      key={r.role}
-                      type="button"
-                      onClick={() => handleSwitchRole(r.role, r.path)}
-                      style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '0.45rem 0.625rem', borderRadius: '8px',
-                        fontSize: '12px', border: 'none', cursor: 'pointer',
-                        textAlign: 'left', width: '100%',
-                        background: isActive ? 'rgba(143, 240, 117, 0.12)' : 'transparent',
-                        color: isActive ? '#8FF075' : 'rgba(255, 255, 255, 0.8)',
-                        fontWeight: isActive ? 600 : 400,
-                        transition: 'background 0.15s',
-                      }}
-                      onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; }}
-                      onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span className={r.color}>{r.icon}</span>
-                        <span>{r.label}</span>
-                      </div>
-                      {isActive && <Check size={14} color="#8FF075" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Notifications bell */}
         <button

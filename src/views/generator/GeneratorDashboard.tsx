@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 export default function GeneratorDashboard() {
   const { profile } = useAuth();
 
-  const myPickups = mockPickups;
+  const myPickups = mockPickups.filter(p => !profile?.org_id || p.org_id === profile.org_id);
   const completed = myPickups.filter(p => p.status === 'completed').length;
   const pending   = myPickups.filter(p => ['queued', 'photo_pending', 'photo_verified', 'assigned', 'en_route', 'arrived', 'weighed'].includes(p.status)).length;
   const flagged   = myPickups.filter(p => p.status === 'flagged').length;
