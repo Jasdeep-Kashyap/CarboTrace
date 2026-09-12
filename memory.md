@@ -7,11 +7,13 @@ This document serves as a living memory file for any AI assistant working on the
 CarboTrace is a Waste-to-Carbon (W2C) credit tracking application. It tracks the lifecycle of waste from collection to recycling and mints verified carbon credits.
 
 ## 2. Tech Stack & Architecture
-- **Framework:** React + Vite (Note: Older docs mentioned Next.js App Router, but recent configuration is using Vite).
-- **Styling:** Tailwind CSS, shadcn/ui (Initialization in progress).
-- **Backend/DB:** Supabase (Auth via JWT/RLS, Postgres + PostGIS for geofencing, Storage, Realtime).
-- **Serverless API:** Supabase Edge Functions & RPCs.
-- **Language:** TypeScript.
+- **Frontend:** React 19 + Vite + TypeScript (single Vite app at project root, NOT a monorepo)
+- **Styling:** Tailwind CSS v4 + shadcn/ui (base-nova style, configured in `components.json`)
+- **Routing:** React Router v7 (`react-router-dom`)
+- **State/Data:** TanStack Query for server state + Supabase Realtime for live updates
+- **Backend/DB:** Supabase (Auth via JWT/RLS, PostgreSQL + PostGIS for geofencing, Storage, Realtime, Edge Functions)
+- **Validation:** Zod schemas for all forms and API payloads
+- **Package Manager:** `pnpm`
 
 ## 3. User Roles & Flows
 - **Generator:** Logs waste, uploads verification photos.
@@ -27,14 +29,35 @@ CarboTrace is a Waste-to-Carbon (W2C) credit tracking application. It tracks the
 2. Keep Supabase queries secure using **Row Level Security (RLS)**.
 3. Separate UI components into reusable **shadcn/ui** structures (located in `src/components`).
 4. Follow the standard API response envelope: `{ ok, data, meta }` or `{ ok, error }`.
+5. Path alias: `@/*` → `./src/*` (configured in `tsconfig.json` and `vite.config.ts`).
 
 ## 5. Current State & Recent Changes
-- Initialized Tailwind CSS and updated `vite.config.ts` and `index.css`.
-- Configured path aliases (`@/*` -> `./src/*`) in `tsconfig.json`.
-- `shadcn-ui` is currently being initialized.
-- A draft prompt for Claude was created to help bootstrap the database schema and roadmap.
+- ✅ Initialized Tailwind CSS v4 and updated `vite.config.ts` and `index.css`.
+- ✅ Configured path aliases (`@/*` → `./src/*`) in `tsconfig.json`.
+- ✅ shadcn/ui initialized (`components.json` with base-nova style).
+- ✅ Fixed `@types/node` error (installed at root level).
+- ✅ **Removed `apps/` monorepo** (was Fastify API + duplicate web app). Now single Vite app + Supabase backend.
+- ✅ Deleted `pnpm-workspace.yaml`.
+- ✅ Updated root `package.json` with all dependencies (React, Supabase, React Router, TanStack Query, Zod, shadcn).
+- ✅ Completed `database_schema.md` — 15 tables, 6 enums, PostGIS, RLS, RPCs, triggers, realtime.
+- ✅ Completed `Roadmap.md` — 10-phase implementation plan.
+- ✅ Updated `Architecture.md` to reflect actual Vite + React + Supabase stack.
 
 ## 6. Open Tasks / TODOs
-- Finalize database schema (`database_schema.md` is currently empty).
-- Define project roadmap (`Roadmap.md` is currently empty).
-- Complete shadcn setup and build base layout components.
+- [ ] Run `pnpm install` to install new dependencies.
+- [ ] Set up React Router route skeleton with all portals.
+- [ ] Create Supabase project and apply migrations.
+- [ ] Install base shadcn/ui components (Button, Card, Input, etc.).
+- [ ] Build shared layout shell (sidebar, topbar, responsive drawer).
+- [ ] Generate TypeScript types from Supabase schema.
+- [ ] Create Zod schemas mirroring database types (`src/lib/schemas/`).
+
+## 7. Key Files
+- `CLAUDE.md` — Full project specification and context.
+- `claude_prompt.md` — Prompt reference for AI assistants.
+- `database_schema.md` — Complete PostgreSQL schema with 15 tables, RLS, RPCs.
+- `Roadmap.md` — 10-phase implementation roadmap.
+- `Architecture.md` — Architecture diagram and design decisions.
+- `Api_spec.md` — RPC and Edge Function API reference.
+- `User_Flows.md` — User role flows and edge cases.
+- `components.json` — shadcn/ui configuration.
