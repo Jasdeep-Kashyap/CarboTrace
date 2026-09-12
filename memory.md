@@ -44,13 +44,16 @@ CarboTrace is a Waste-to-Carbon (W2C) credit tracking application. It tracks the
 - ✅ Updated `Architecture.md` to reflect actual Vite + React + Supabase stack.
 
 ## 6. Open Tasks / TODOs
-- [ ] Run `pnpm install` to install new dependencies.
-- [ ] Set up React Router route skeleton with all portals.
+- [x] Run `pnpm install` to install new dependencies.
+- [x] Set up React Router route skeleton with all portals.
 - [ ] Create Supabase project and apply migrations.
 - [ ] Install base shadcn/ui components (Button, Card, Input, etc.).
-- [ ] Build shared layout shell (sidebar, topbar, responsive drawer).
-- [ ] Generate TypeScript types from Supabase schema.
-- [ ] Create Zod schemas mirroring database types (`src/lib/schemas/`).
+- [x] Build shared layout shell (sidebar, topbar, responsive drawer).
+- [x] Generate TypeScript types from Supabase schema.
+- [x] Create Zod schemas mirroring database types (`src/lib/schemas/`).
+- [x] Implement React.lazy code splitting and ErrorBoundary.
+- [x] Complete PWA setup for offline Driver support.
+- [x] Build missing portal views (ClaimBatch, AuditLog, Onboarding).
 
 ## 7. Key Files
 - `CLAUDE.md` — Full project specification and context.
