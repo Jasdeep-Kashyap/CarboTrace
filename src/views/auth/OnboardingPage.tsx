@@ -2,24 +2,31 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, Building2, User, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { mockOrgs } from '@/lib/mock-data';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const existingOrg = profile?.org_id ? mockOrgs.find(o => o.id === profile.org_id) : null;
+
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     fullName: profile?.full_name || '',
-    phone: '',
-    orgName: '',
-    orgCity: '',
+    phone: profile?.phone || '',
+    orgName: existingOrg?.name || '',
+    orgCity: existingOrg?.city || '',
   });
 
   if (!profile) return null;
 
   function handleSubmit() {
     // In a real app, we'd save this to Supabase.
-    // For now, just redirect to the portal.
-    navigate(`/${profile?.role}`);
+    // Redirect to the portal
+    if (profile?.role === 'buyer') {
+      navigate('/marketplace');
+    } else {
+      navigate(`/${profile?.role}`);
+    }
   }
 
   return (
