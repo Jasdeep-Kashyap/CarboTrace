@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"pnpm --filter api dev\" \"pnpm --filter web dev\""
   },
   "keywords": [],
   "author": "",
@@ -23,9 +23,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@types/node": "^22.20.2",
     "concurrently": "^10.0.5"
-  },
-  "scripts": {
-    "dev": "concurrently \"pnpm --filter api dev\" \"pnpm --filter web dev\""
   }
 }
