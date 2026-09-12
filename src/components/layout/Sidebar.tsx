@@ -50,7 +50,7 @@ const ROLE_ICON: Record<UserRole, React.ReactNode> = {
 interface SidebarProps { isOpen: boolean; onClose: () => void; }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const { profile, logout } = useAuth();
+  const { profile, logout, switchRole } = useAuth();
   const navigate = useNavigate();
   const role = profile?.role ?? 'generator';
   const navItems = NAV_BY_ROLE[role] ?? [];
@@ -124,9 +124,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       <div className="divider" style={{ margin: '0 1rem' }} />
 
       {/* Nav items */}
-      <nav style={{ padding: '0 0.5rem', flex: 1 }}>
+      <nav style={{ padding: '0 0.5rem', flex: 1, overflowY: 'auto' }}>
+        {/* Active role views */}
         <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.25rem 0.5rem 0.5rem', marginTop: '0.25rem' }}>
-          Portal
+          Active Portal ({ROLE_LABELS[role]})
         </div>
         {navItems.map(item => (
           <NavLink
@@ -140,14 +141,61 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </NavLink>
         ))}
 
-        <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.75rem 0.5rem 0.5rem', marginTop: '0.5rem' }}>
-          Platform
+        {/* All Available Dashboards */}
+        <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.85rem 0.5rem 0.35rem' }}>
+          All Dashboards
+        </div>
+        <NavLink
+          to="/generator"
+          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+          onClick={() => { switchRole('generator'); onClose(); }}
+        >
+          <Package size={16} /> Generator (Waste Source)
+        </NavLink>
+        <NavLink
+          to="/driver"
+          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+          onClick={() => { switchRole('driver'); onClose(); }}
+        >
+          <Truck size={16} /> Driver Logistics
+        </NavLink>
+        <NavLink
+          to="/recycler"
+          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+          onClick={() => { switchRole('recycler'); onClose(); }}
+        >
+          <Recycle size={16} /> Recycler (Pyrolysis)
+        </NavLink>
+        <NavLink
+          to="/checker"
+          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+          onClick={() => { switchRole('checker'); onClose(); }}
+        >
+          <ShieldCheck size={16} /> Checker Auditor Desk
+        </NavLink>
+        <NavLink
+          to="/marketplace"
+          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+          onClick={() => { switchRole('buyer'); onClose(); }}
+        >
+          <ShoppingCart size={16} /> Credit Marketplace
+        </NavLink>
+        <NavLink
+          to="/admin"
+          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+          onClick={() => { switchRole('admin'); onClose(); }}
+        >
+          <Settings size={16} /> Protocol Admin
+        </NavLink>
+
+        <div style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--color-text-subtle)', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.85rem 0.5rem 0.35rem' }}>
+          Public & Impact
         </div>
         <NavLink to="/" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose}>
-          <Leaf size={16} /> Public Dashboard
+          <Leaf size={16} /> Live Public Ledger
         </NavLink>
         <NavLink to="/impact" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose}>
-          <ShieldCheck size={16} /> Audited Impact
+          <ShieldCheck size={16} color="#8FF075" /> Village Impact (Mock)
         </NavLink>
       </nav>
 

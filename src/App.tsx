@@ -38,14 +38,31 @@ const OrgsPage           = lazy(() => import('@/views/admin/OrgsPage'));
 const DisputesPage       = lazy(() => import('@/views/admin/DisputesPage'));
 const AuditLogPage       = lazy(() => import('@/views/admin/AuditLogPage'));
 
+import { useEffect } from 'react';
+import type { UserRole } from '@/types/database';
+
 function ProtectedRoute({ children, allowedRoles }: {
   children: React.ReactNode;
   allowedRoles?: string[];
 }) {
-  const { profile, isLoading } = useAuth();
-  if (isLoading) return <div className="page-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>Loading…</div>;
-  if (!profile) return <Navigate to="/login" replace />;
-  if (allowedRoles && !allowedRoles.includes(profile.role)) return <Navigate to={`/${profile.role}`} replace />;
+  const { profile, isLoading, switchRole } = useAuth();
+
+  useEffect(() => {
+    if (allowedRoles && allowedRoles.length > 0 && profile && !allowedRoles.includes(profile.role)) {
+      // Auto-adapt persona to match the requested dashboard so the user can freely explore
+      const targetRole = allowedRoles[0] as UserRole;
+      switchRole(targetRole);
+    }
+  }, [allowedRoles, profile, switchRole]);
+
+  if (isLoading) {
+    return (
+      <div className="page-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        Loading…
+      </div>
+    );
+  }
+
   return <>{children}</>;
 }
 

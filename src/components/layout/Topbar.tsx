@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Bell, ChevronDown, Check, Package, Truck, Recycle, ShieldCheck, ShoppingCart, Settings } from 'lucide-react';
+import { Menu, Bell, ChevronDown, Check, Package, Truck, Recycle, ShieldCheck, ShoppingCart, Settings, Database, ExternalLink, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { ROLE_LABELS, ROLE_COLORS } from '@/lib/utils';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import type { UserRole } from '@/types/database';
 
 interface TopbarProps { onMenuClick: () => void; }
@@ -20,6 +21,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const { profile, login } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dbModalOpen, setDbModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const role = profile?.role ?? 'generator';
@@ -60,6 +62,19 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         <span className="w-2 h-2 rounded-full bg-[#8FF075] animate-pulse shadow-[0_0_8px_#8FF075]" />
         <span className="text-white/60">LEDGER SYNCED</span>
       </div>
+
+      {/* Supabase status pill */}
+      <button
+        type="button"
+        onClick={() => setDbModalOpen(true)}
+        className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#12151A] hover:bg-[#161A20] border border-white/8 text-[11px] font-mono cursor-pointer transition-colors"
+        title="Supabase Database Status"
+      >
+        <Database size={12} color={isSupabaseConfigured ? '#8FF075' : '#F99C00'} />
+        <span className="text-white/70">
+          {isSupabaseConfigured ? 'SUPABASE LIVE' : 'SUPABASE READY (LOCAL DEMO)'}
+        </span>
+      </button>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginLeft: 'auto' }}>
         {/* 1-Click Persona Switcher */}
@@ -163,6 +178,101 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           {profile?.full_name?.charAt(0) ?? 'U'}
         </div>
       </div>
+
+      {/* Supabase Connection Details Modal */}
+      {dbModalOpen && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '1.5rem',
+          }}
+          onClick={() => setDbModalOpen(false)}
+        >
+          <div
+            style={{
+              background: '#12151A', border: '1px solid rgba(255, 255, 255, 0.15)',
+              borderRadius: '16px', maxWidth: 540, width: '100%',
+              padding: '1.75rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
+              position: 'relative',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Database size={18} color={isSupabaseConfigured ? '#8FF075' : '#F99C00'} />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+                  Supabase Database Integration
+                </h3>
+              </div>
+              <button
+                onClick={() => setDbModalOpen(false)}
+                style={{ background: 'none', border: 'none', color: 'rgba(255, 255, 255, 0.6)', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{
+              background: isSupabaseConfigured ? 'rgba(143, 240, 117, 0.08)' : 'rgba(249, 156, 0, 0.08)',
+              border: `1px solid ${isSupabaseConfigured ? 'rgba(143, 240, 117, 0.25)' : 'rgba(249, 156, 0, 0.25)'}`,
+              borderRadius: '10px', padding: '0.85rem 1rem', marginBottom: '1.25rem'
+            }}>
+              <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: isSupabaseConfigured ? '#8FF075' : '#F99C00', textTransform: 'uppercase' }}>
+                {isSupabaseConfigured ? 'Status: Connected to Supabase Live Project' : 'Status: Resilient Local Demo Mode Active'}
+              </div>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.75)', lineHeight: 1.5 }}>
+                {isSupabaseConfigured
+                  ? 'Your application is querying and synchronizing with live PostgreSQL tables and realtime change streams.'
+                  : 'Operating in self-contained offline demo mode with instant data. All 6 dashboards (Generator, Driver, Recycler, Checker, Buyer, Admin) are fully functional.'}
+              </p>
+            </div>
+
+            <div style={{ marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)', fontFamily: 'var(--font-mono)', marginBottom: '0.35rem' }}>
+                To Connect Your Live Supabase Project:
+              </div>
+              <ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.75)', lineHeight: 1.6 }}>
+                <li>
+                  Open your <code style={{ color: '#8FF075' }}>.env</code> file in the project root.
+                </li>
+                <li>
+                  Provide your Supabase URL and Anon Key:
+                  <pre style={{ background: '#0B0D10', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '10px', color: '#00D2EF', margin: '4px 0' }}>
+VITE_SUPABASE_URL=https://xyz.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJh...
+                  </pre>
+                </li>
+                <li>
+                  Run the SQL migration script located at:
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#8FF075', marginTop: '2px' }}>
+                    supabase/migrations/20260912_initial_schema.sql
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <a
+                href="https://supabase.com/dashboard"
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-ghost btn-sm"
+                style={{ gap: '6px' }}
+              >
+                Supabase Dashboard <ExternalLink size={14} />
+              </a>
+              <button
+                onClick={() => setDbModalOpen(false)}
+                className="btn btn-primary btn-sm"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Leaf, TrendingUp, Award, Building2, Calculator,
   ChevronRight, Recycle, Zap, ShieldCheck, ArrowUpRight,
+  Package, Truck, Settings, ShoppingCart,
 } from 'lucide-react';
 import { mockImpactMetrics, mockLeaderboard } from '@/lib/mock-data';
 import { formatWeight, formatCO2e, estimateCO2e, co2eComparisons, WASTE_TYPE_LABELS } from '@/lib/utils';
@@ -268,6 +269,107 @@ export default function PublicDashboard() {
               <div style={{ fontWeight: 700, marginBottom: '0.5rem', color: '#FFFFFF' }}>{p.title}</div>
               <div style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.6)', lineHeight: 1.6 }}>{p.desc}</div>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Direct Access to All Portals ── */}
+      <section style={{ padding: '3rem 2rem', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0.75rem', borderRadius: '999px', background: 'rgba(143, 240, 117, 0.1)', border: '1px solid rgba(143, 240, 117, 0.25)', color: '#8FF075', fontSize: '11px', fontFamily: 'var(--font-mono)', marginBottom: '0.75rem' }}>
+            UNIVERSAL PORTAL ACCESS · 1-CLICK WORKFLOWS
+          </div>
+          <h2 style={{ fontSize: '1.65rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+            Explore All 6 Connected Stakeholder Portals
+          </h2>
+          <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.875rem', fontFamily: 'var(--font-mono)', margin: '0.35rem 0 0' }}>
+            Jump directly into any workflow — every dashboard is unlocked and accessible
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+          {[
+            {
+              role: 'Generator',
+              path: '/generator',
+              icon: <Package size={22} color="#8FF075" />,
+              color: '#8FF075',
+              title: 'Waste Generator Portal',
+              desc: 'Log pickups, scan bin QR codes, upload overhead verification photos, and track bin status.',
+              badge: 'Source Producer',
+            },
+            {
+              role: 'Driver',
+              path: '/driver',
+              icon: <Truck size={22} color="#3B82F6" />,
+              color: '#3B82F6',
+              title: 'Logistics Driver PWA',
+              desc: 'Route navigation, 50m geofence arrival detection, scale weighbridge logging & instant SMS receipts.',
+              badge: 'Logistics Fleet',
+            },
+            {
+              role: 'Recycler',
+              path: '/recycler',
+              icon: <Recycle size={22} color="#00D2EF" />,
+              color: '#00D2EF',
+              title: 'Recycler Kiln Facility',
+              desc: 'Claim incoming batches, monitor high-temp pyrolysis & digestion, upload certified lab tests.',
+              badge: 'Thermal / Bio Plant',
+            },
+            {
+              role: 'Checker',
+              path: '/checker',
+              icon: <ShieldCheck size={22} color="#AC4BFF" />,
+              color: '#AC4BFF',
+              title: 'ISO Checker & Auditor Desk',
+              desc: 'Review tamper-evident audit checklists, inspect weighbridge tickets, and mint verified W2C credits.',
+              badge: 'MRV Compliance',
+            },
+            {
+              role: 'Buyer',
+              path: '/marketplace',
+              icon: <ShoppingCart size={22} color="#F99C00" />,
+              color: '#F99C00',
+              title: 'Carbon Credit Marketplace',
+              desc: 'Filter verified vintage credits by methodology, checkout with INR/USD, and retire for ESG certificates.',
+              badge: 'Corporate Buyers',
+            },
+            {
+              role: 'Admin',
+              path: '/admin',
+              icon: <Settings size={22} color="#EF4444" />,
+              color: '#EF4444',
+              title: 'Protocol Governance Admin',
+              desc: 'Manage registered organisations, arbitrate weighbridge disputes, and inspect immutable audit logs.',
+              badge: 'Protocol Admin',
+            },
+          ].map(portal => (
+            <Link
+              key={portal.path}
+              to={portal.path}
+              className="card card-hover"
+              style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '1.5rem', borderRadius: '16px', position: 'relative' }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: '12px', background: `${portal.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${portal.color}30` }}>
+                    {portal.icon}
+                  </div>
+                  <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', padding: '2px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', color: portal.color, border: '1px solid rgba(255,255,255,0.1)' }}>
+                    {portal.badge}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#FFFFFF', margin: '0 0 0.4rem' }}>
+                  {portal.title}
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.6)', lineHeight: 1.5, margin: 0 }}>
+                  {portal.desc}
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: portal.color, fontWeight: 600, marginTop: '1.25rem', fontFamily: 'var(--font-mono)' }}>
+                Launch Dashboard <ArrowUpRight size={14} />
+              </div>
+            </Link>
           ))}
         </div>
       </section>

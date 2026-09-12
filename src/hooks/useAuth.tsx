@@ -10,6 +10,7 @@ interface AuthState {
 interface AuthContext extends AuthState {
   login: (role: UserRole) => void;
   logout: () => void;
+  switchRole: (role: UserRole) => void;
 }
 
 const Ctx = createContext<AuthContext | null>(null);
@@ -21,12 +22,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY) as UserRole | null;
-    if (saved) {
-      const profile = mockProfiles.find(p => p.role === saved) ?? null;
-      setState({ profile, isLoading: false });
-    } else {
-      setState({ profile: null, isLoading: false });
-    }
+    // Default to 'generator' so demo visitors are never blocked
+    const roleToUse = saved ?? 'generator';
+    const profile = mockProfiles.find(p => p.role === roleToUse) ?? mockProfiles[0];
+    setState({ profile, isLoading: false });
   }, []);
 
   function login(role: UserRole) {
@@ -35,12 +34,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ profile, isLoading: false });
   }
 
-  function logout() {
-    localStorage.removeItem(STORAGE_KEY);
-    setState({ profile: null, isLoading: false });
+  function switchRole(role: UserRole) {
+    login(role);
   }
 
-  return <Ctx.Provider value={{ ...state, login, logout }}>{children}</Ctx.Provider>;
+  function logout() {
+    localStorage.removeItem(STORAGE_KEY);
+    // Keep a fallback guest demo profile available
+    setState({ profile: mockProfiles[0], isLoading: false });
+  }
+
+  return <Ctx.Provider value={{ ...state, login, logout, switchRole }}>{children}</Ctx.Provider>;
 }
 
 export function useAuth() {
