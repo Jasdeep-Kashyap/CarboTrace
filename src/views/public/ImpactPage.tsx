@@ -114,6 +114,11 @@ export default function ImpactPage() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#12151A] border border-white/8 text-[11px] font-mono">
+            <span className="w-2 h-2 rounded-full bg-[#8FF075] animate-pulse shadow-[0_0_8px_#8FF075]" />
+            <span className="text-[#8FF075] font-semibold">SUPABASE LIVE</span>
+          </div>
+
           <button
             onClick={() => window.print()}
             className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#12151A] hover:bg-[#161A20] border border-white/10 text-xs text-white/80 transition-colors"

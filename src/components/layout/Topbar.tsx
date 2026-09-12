@@ -67,11 +67,11 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       <button
         type="button"
         onClick={() => setDbModalOpen(true)}
-        className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#12151A] hover:bg-[#161A20] border border-white/8 text-[11px] font-mono cursor-pointer transition-colors"
+        className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#12151A] hover:bg-[#161A20] border border-white/8 text-[11px] font-mono cursor-pointer transition-colors"
         title="Supabase Database Status"
       >
         <Database size={12} color={isSupabaseConfigured ? '#8FF075' : '#F99C00'} />
-        <span className="text-white/70">
+        <span className={isSupabaseConfigured ? 'text-[#8FF075] font-semibold' : 'text-white/70'}>
           {isSupabaseConfigured ? 'SUPABASE LIVE' : 'SUPABASE READY (LOCAL DEMO)'}
         </span>
       </button>

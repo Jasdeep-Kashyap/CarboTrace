@@ -83,10 +83,10 @@ export default function PublicDashboard() {
             }}>MRV v2.4</span>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-[#12151A] border border-white/8 text-[11px] font-mono">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#12151A] border border-white/8 text-[11px] font-mono">
             <span className="w-2 h-2 rounded-full bg-[#8FF075] animate-pulse shadow-[0_0_8px_#8FF075]" />
-            <span className="text-white/60">LEDGER SYNCED</span>
+            <span className="text-[#8FF075] font-semibold">SUPABASE LIVE</span>
           </div>
           <Link to="/impact" className="btn btn-ghost btn-sm" id="nav-impact-btn" style={{ color: '#8FF075', gap: '0.375rem' }}><ShieldCheck size={14} /> Village Impact (Mock)</Link>
           <Link to="/login" className="btn btn-ghost btn-sm" id="nav-login-btn">Sign In</Link>
