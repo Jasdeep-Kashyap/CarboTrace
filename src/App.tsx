@@ -11,6 +11,8 @@ import LoginPage from '@/views/auth/LoginPage';
 import RegisterPage from '@/views/auth/RegisterPage';
 import OnboardingPage from '@/views/auth/OnboardingPage';
 
+const ImpactPage = lazy(() => import('@/views/public/ImpactPage'));
+
 // Lazy loaded portals
 const GeneratorDashboard = lazy(() => import('@/views/generator/GeneratorDashboard'));
 const NewPickupPage      = lazy(() => import('@/views/generator/NewPickupPage'));
@@ -54,6 +56,7 @@ export default function App() {
         <Routes>
           {/* Public — no auth required */}
           <Route path="/" element={<PublicDashboard />} />
+          <Route path="/impact" element={<ImpactPage />} />
 
           {/* Auth */}
           <Route path="/login"    element={<LoginPage />} />

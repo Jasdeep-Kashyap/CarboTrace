@@ -63,33 +63,60 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <aside className={`sidebar${isOpen ? ' open' : ''}`} style={{ zIndex: 50 }}>
       {/* Logo */}
-      <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{
-            width: 32, height: 32, borderRadius: '8px',
-            background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
+            width: 36, height: 36, borderRadius: '10px',
+            background: 'linear-gradient(135deg, rgba(143, 240, 117, 0.2), rgba(59, 130, 246, 0.2))',
+            border: '1px solid rgba(143, 240, 117, 0.4)',
+            boxShadow: '0 0 15px rgba(143, 240, 117, 0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <Leaf size={16} color="white" />
+            <Leaf size={18} color="#8FF075" />
           </div>
-          <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-text)' }}>CarboTrace</span>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#FFFFFF', letterSpacing: '-0.02em', fontFamily: 'var(--font-sans)' }}>
+                Carbo<span style={{ color: '#8FF075' }}>Trace</span>
+              </span>
+              <span style={{
+                fontSize: '9px', fontFamily: 'var(--font-mono)', padding: '1px 5px',
+                borderRadius: '4px', background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)'
+              }}>MRV v2.4</span>
+            </div>
+            <p style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', margin: 0 }}>
+              WASTE-TO-CARBON
+            </p>
+          </div>
         </div>
         <button className="btn-ghost" style={{ padding: '0.25rem', borderRadius: '6px', display: 'none' }} onClick={onClose} id="sidebar-close-btn">
           <X size={16} />
         </button>
       </div>
 
-      {/* Role badge */}
+      {/* Role badge card */}
       <div style={{ padding: '0.75rem 1rem' }}>
         <div style={{
-          display: 'flex', alignItems: 'center', gap: '0.5rem',
-          background: 'var(--color-surface-2)', borderRadius: 'var(--radius-md)',
-          padding: '0.5rem 0.75rem',
+          display: 'flex', alignItems: 'center', gap: '0.625rem',
+          background: '#12151A', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px',
+          padding: '0.625rem 0.75rem',
         }}>
-          <div style={{ color: 'var(--color-accent)' }}>{ROLE_ICON[role]}</div>
-          <div>
-            <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text)' }}>{profile?.full_name}</div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{ROLE_LABELS[role]}</div>
+          <div style={{
+            width: 28, height: 28, borderRadius: '8px',
+            background: 'rgba(143, 240, 117, 0.12)', border: '1px solid rgba(143, 240, 117, 0.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#8FF075',
+          }}>
+            {ROLE_ICON[role]}
+          </div>
+          <div style={{ overflow: 'hidden' }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {profile?.full_name}
+            </div>
+            <div style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', color: '#8FF075' }}>
+              {ROLE_LABELS[role]} Portal
+            </div>
           </div>
         </div>
       </div>
@@ -118,6 +145,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
         <NavLink to="/" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose}>
           <Leaf size={16} /> Public Dashboard
+        </NavLink>
+        <NavLink to="/impact" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={onClose}>
+          <ShieldCheck size={16} /> Audited Impact
         </NavLink>
       </nav>
 
